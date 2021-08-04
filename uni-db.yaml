@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: uni-db
+  version: "1.0"
+  description: api for uni db test skill site
+  contact:
+    name: Author Ilya
+    email: deposha322@mail.ru
+servers:
+  - url: "http://localhost:3000/api"
+tags:
+  - name: authorization
+  - name: const
+  - name: posts
+paths:
+  /authorization/login:
+    post:
+      operationId: post-authorization-login
+      description: test
+      summary: Login as user with get jwt token
+      tags:
+        - authorization
+      requestBody:
+        description: Authorizate
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAuthorization"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: JWTToken
+                type: object
+                description: jwt token for requests
+                properties:
+                  token:
+                    type: string
+                    description: jwt token
+                    example: very.long.string
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/BadRequestError"
+  /roles:
+    get:
+      summary: Get list of all users roles
+      description: Get all roles of users
+      operationId: get-user-roles
+      tags:
+        - const
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    roleName:
+                      type: string
+                  required:
+                    - roleName
+    parameters: []
+  /posts:
+    get:
+      summary: Your GET endpoint
+      description: get posts
+      tags:
+        - posts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostGet"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+      operationId: get-posts
+      parameters:
+        - schema:
+            type: boolean
+            default: true
+          in: query
+          name: validated
+
+    post:
+      summary: ""
+      operationId: post-posts
+      description: post new post
+      tags:
+        - posts
+      responses:
+        "200":
+          description: OK
+components:
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ForbiddenError:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequestError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    ErrorResponse:
+      title: DetailOfError
+      type: object
+      description: object with detail of error
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+          description: error detail
+        success:
+          type: boolean
+        reason:
+          type: string
+    UserAuthorization:
+      title: UserAutrorization
+      type: object
+      description: User date to authorizate
+      properties:
+        login:
+          type: string
+          minLength: 3
+        password:
+          type: string
+          minLength: 3
+      required:
+        - login
+        - password
+    PostGet:
+      title: PostGet
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        text:
+          type: string
+        owner:
+          type: string
+        createdAt:
+          type: number
+        commentsCount:
+          type: number
+        likesCount:
+          type: number
