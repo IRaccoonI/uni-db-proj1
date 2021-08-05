@@ -2,13 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider } from 'styled-components';
+
 import App from './App';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { lightTheme } from './theme';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={lightTheme}>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );
