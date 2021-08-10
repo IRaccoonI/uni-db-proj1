@@ -22,6 +22,15 @@ function Login(): ReactElement {
     dispatch(authorizate({ login: login, password: password }));
   }, [login, password, dispatch]);
 
+  const submitOnEnter = useCallback(
+    async (e) => {
+      if (e.key === 'Enter') {
+        await submitCb();
+      }
+    },
+    [submitCb],
+  );
+
   return (
     <LoginStyled>
       {user != null ? <Redirect to="/" /> : null}
@@ -42,8 +51,8 @@ function Login(): ReactElement {
                 type="password"
                 placeholder="Enter Password"
                 value={password}
-                onChange={(ev) => setPassword(ev.target.value)}
-                // onChange={() => dispatch({ type: '' })}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={submitOnEnter}
               />
             </Form.Group>
             <Button variant="success" className="w-100" onClick={submitCb}>
