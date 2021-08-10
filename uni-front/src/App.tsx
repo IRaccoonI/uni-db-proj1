@@ -3,17 +3,34 @@ import { useSelector } from 'react-redux';
 
 import { RootState } from 'redux/store';
 
-import Login from 'components/Login/Login';
-import Test from 'components/Login/Test';
+import {
+  Route,
+  BrowserRouter as Router,
+  Switch,
+  Redirect,
+} from 'react-router-dom';
+
+import PrivateRoute from 'components/PrivateRouter';
+
+import Login from 'components/Login';
+import Header from 'components/Header';
+import NotFound from 'components/NotFound';
 
 function App(): ReactElement {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const loggedIn = useSelector((state: RootState) => state.auth.user != null);
 
   return (
-    <div className="App">
-      {!user ? <Login></Login> : <Test></Test>}
-      <Login></Login>
-    </div>
+    <Router>
+      {/* <div className="App"> */}
+      {loggedIn ? <Header></Header> : null}
+      <Switch>
+        <Route path="/login" component={Login} />
+
+        <PrivateRoute exact path="/" component={Header} />
+        <Route>{loggedIn ? <NotFound /> : <Redirect to="/login" />}</Route>
+      </Switch>
+      {/* </div> */}
+    </Router>
   );
 }
 

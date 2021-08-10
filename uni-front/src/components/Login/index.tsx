@@ -8,6 +8,7 @@ import { Button, Card, Form, Row } from 'react-bootstrap';
 
 import { AppDispatch, RootState } from 'redux/store';
 import { authorizate } from 'redux/slices/auth';
+import { Redirect } from 'react-router';
 
 // const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
 
@@ -23,6 +24,7 @@ function Login(): ReactElement {
 
   return (
     <LoginStyled>
+      {user != null ? <Redirect to="/" /> : null}
       <Row className="h-100">
         <Card className="align-self-center w-472 p-3">
           <Form>
