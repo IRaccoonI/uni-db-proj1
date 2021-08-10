@@ -4,6 +4,8 @@ import { Taxios } from '@simplesmiler/taxios';
 import Axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
+// Types
+
 export type TokenType = {
   id: number;
   login: string;
@@ -17,7 +19,7 @@ export type authState = {
   user: TokenType | null;
 };
 
-const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
+// Init state
 
 const initialState = {
   status: 'idle',
@@ -28,6 +30,9 @@ const initialState = {
 } as authState;
 
 // Thunk functions
+
+const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
+
 export const authorizate = createAsyncThunk(
   'auth/login',
   async (user: { login: string; password: string }) => {
@@ -43,39 +48,12 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return '';
 });
 
+// Slice
+
 const todosSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {
-    // todoToggled(state, action) {
-    //   const todoId = action.payload;
-    //   const todo = state.entities[todoId];
-    //   todo.completed = !todo.completed;
-    // },
-    // todoColorSelected: {
-    //   reducer(state, action) {
-    //     const { color, todoId } = action.payload;
-    //     state.entities[todoId].color = color;
-    //   },
-    //   prepare(todoId, color) {
-    //     return {
-    //       payload: { todoId, color },
-    //     };
-    //   },
-    // },
-    // todoDeleted: authAdapter.removeOne,
-    // allTodosCompleted(state, action) {
-    //   Object.values(state.entities).forEach((todo) => {
-    //     todo.completed = true;
-    //   });
-    // },
-    // completedTodosCleared(state, action) {
-    //   const completedIds = Object.values(state.entities)
-    //     .filter((todo) => todo.completed)
-    //     .map((todo) => todo.id);
-    //   authAdapter.removeMany(state, completedIds);
-    // },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(authorizate.pending, (state: authState) => {
@@ -106,55 +84,4 @@ const todosSlice = createSlice({
   },
 });
 
-// export const {
-//   allTodosCompleted,
-//   completedTodosCleared,
-//   todoAdded,
-//   todoColorSelected,
-//   todoDeleted,
-//   todoToggled,
-// } = todosSlice.actions;
-
 export default todosSlice.reducer;
-
-// export const { selectAll: selectTodos, selectById: selectTodoById } =
-//   authAdapter.getSelectors((state) => state.todos);
-
-// export const selectTodoIds = createSelector(
-//   // First, pass one or more "input selector" functions:
-//   selectTodos,
-//   // Then, an "output selector" that receives all the input results as arguments
-//   // and returns a final result value
-//   (todos) => todos.map((todo) => todo.id),
-// );
-
-// export const selectFilteredTodos = createSelector(
-//   // First input selector: all todos
-//   selectTodos,
-//   // Second input selector: all filter values
-//   (state) => state.filters,
-//   // Output selector: receives both values
-//   (todos, filters) => {
-//     const { status, colors } = filters;
-//     const showAllCompletions = status === StatusFilters.All;
-//     if (showAllCompletions && colors.length === 0) {
-//       return todos;
-//     }
-
-//     const completedStatus = status === StatusFilters.Completed;
-//     // Return either active or completed todos based on filter
-//     return todos.filter((todo) => {
-//       const statusMatches =
-//         showAllCompletions || todo.completed === completedStatus;
-//       const colorMatches = colors.length === 0 || colors.includes(todo.color);
-//       return statusMatches && colorMatches;
-//     });
-//   },
-// );
-
-// export const selectFilteredTodoIds = createSelector(
-//   // Pass our other memoized selector as an input
-//   selectFilteredTodos,
-//   // And derive data in the output selector
-//   (filteredTodos) => filteredTodos.map((todo) => todo.id),
-// );
