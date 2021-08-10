@@ -1,22 +1,25 @@
 import { ReactElement, useCallback, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Button, Card, Form, Row } from 'react-bootstrap';
 
-import { Taxios } from '@simplesmiler/taxios';
-import Axios from 'axios';
+// import { Taxios } from '@simplesmiler/taxios';
+// import Axios from 'axios';
 
-const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
+import { AppDispatch, RootState } from 'redux/store';
+import { authorizate } from 'redux/slices/auth';
+
+// const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
 
 function Login(): ReactElement {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch: AppDispatch = useDispatch();
 
   const submitCb = useCallback(async () => {
-    await taxios.post('/authorization/login', {
-      login: login,
-      password: login,
-    });
-  }, [login]);
+    dispatch(authorizate({ login: login, password: password }));
+  }, [login, password, dispatch]);
 
   return (
     <LoginStyled>
@@ -38,10 +41,11 @@ function Login(): ReactElement {
                 placeholder="Enter Password"
                 value={password}
                 onChange={(ev) => setPassword(ev.target.value)}
+                // onChange={() => dispatch({ type: '' })}
               />
             </Form.Group>
             <Button variant="success" className="w-100" onClick={submitCb}>
-              Login
+              Login {user?.id}
             </Button>
           </Form>
         </Card>

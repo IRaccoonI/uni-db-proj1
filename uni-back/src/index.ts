@@ -35,7 +35,7 @@ export async function createApp() {
 
   /** Middlewares */
   app.use(json());
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV !== 'test') {
     app.use(
       logger({
         transporter: (str, args: [string, string, string, number, string, string]) => {

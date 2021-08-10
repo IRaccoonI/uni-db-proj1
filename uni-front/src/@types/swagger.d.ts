@@ -43,7 +43,7 @@ declare global {
             /**
              * jwt token
              */
-            token?: string;
+            token: string;
             [k: string]: unknown;
           };
         };

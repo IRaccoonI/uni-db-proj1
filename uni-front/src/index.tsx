@@ -1,21 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from 'styled-components';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'index.css';
+
+import { store } from './redux/store';
+
 import App from './App';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { lightTheme } from './theme';
 import { GlobalStyled } from 'global';
-import 'index.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={lightTheme}>
-      <GlobalStyled />
-      <App />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={lightTheme}>
+        <GlobalStyled />
+        <App />
+      </ThemeProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root'),
 );
