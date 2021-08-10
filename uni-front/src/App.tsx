@@ -26,7 +26,7 @@ function App(): ReactElement {
       <Switch>
         <Route path="/login" component={Login} />
 
-        <PrivateRoute exact path="/" component={Header} />
+        <PrivateRoute exact path="/" component={NotFound} />
         <Route>{loggedIn ? <NotFound /> : <Redirect to="/login" />}</Route>
       </Switch>
       {/* </div> */}
