@@ -1,13 +1,16 @@
 openapi: 3.0.3
 info:
   title: uni-db
-  version: "1.0"
+  version: '1.0'
   description: api for uni db test skill site
   contact:
     name: Author Ilya
     email: deposha322@mail.ru
 servers:
-  - url: "http://localhost:3000/api"
+  - url: 'http://localhost:3001/api'
+    description: dev
+  - url: 'http://localhost:3000/api'
+    description: prod
 tags:
   - name: authorization
   - name: const
@@ -26,9 +29,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserAuthorization"
+              $ref: '#/components/schemas/UserAuthorization'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -41,10 +44,12 @@ paths:
                     type: string
                     description: jwt token
                     example: very.long.string
-        "400":
-          $ref: "#/components/responses/BadRequestError"
-        "401":
-          $ref: "#/components/responses/BadRequestError"
+                required:
+                  - token
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/BadRequestError'
   /roles:
     get:
       summary: Get list of all users roles
@@ -53,7 +58,7 @@ paths:
       tags:
         - const
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -74,20 +79,20 @@ paths:
       tags:
         - posts
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PostGet"
-        "400":
-          $ref: "#/components/responses/BadRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
+                  $ref: '#/components/schemas/PostGet'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
       operationId: get-posts
       parameters:
         - schema:
@@ -95,36 +100,76 @@ paths:
             default: true
           in: query
           name: validated
-
+      security:
+        - BearerAuth: []
     post:
-      summary: ""
+      summary: ''
       operationId: post-posts
       description: post new post
       tags:
         - posts
       responses:
-        "200":
+        '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                required:
+                  - id
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                withoutVerification:
+                  type: boolean
+                  default: false
+              required:
+                - title
+                - content
+      parameters: []
+      security:
+        - BearerAuth: []
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
     ForbiddenError:
       description: Access denied
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
     BadRequestError:
       description: Bad Request
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
     ErrorResponse:
       title: DetailOfError
@@ -148,9 +193,11 @@ components:
         login:
           type: string
           minLength: 3
+          default: admin
         password:
           type: string
           minLength: 3
+          default: admin
       required:
         - login
         - password
@@ -162,13 +209,29 @@ components:
           type: number
         title:
           type: string
-        text:
+        content:
           type: string
         owner:
-          type: string
+          type: object
+          required:
+            - id
+            - login
+          properties:
+            id:
+              type: number
+            login:
+              type: string
         createdAt:
           type: number
         commentsCount:
           type: number
         likesCount:
           type: number
+      required:
+        - id
+        - title
+        - content
+        - owner
+        - createdAt
+        - commentsCount
+        - likesCount
