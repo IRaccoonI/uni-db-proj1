@@ -18,6 +18,6 @@ const DB_CONFIG = {
 
 module.exports = {
   development: DB_CONFIG,
-  test: Object.assign(DB_CONFIG, { logging: false }),
+  test: DB_CONFIG,
   production: DB_CONFIG,
 };

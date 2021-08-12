@@ -13,10 +13,12 @@ import {
   BeforeUpdate,
   PrimaryKey,
   AutoIncrement,
+  HasMany,
 } from 'sequelize-typescript';
 import bcrypt from 'bcrypt';
 
 import UserRoles from './UserRoles.model';
+import Posts from './Posts.model';
 
 @DefaultScope(() => ({
   attributes: ['id', 'login', 'roleName'],
@@ -42,6 +44,7 @@ export default class Users extends Model {
   @ForeignKey(() => UserRoles)
   @Column(DataType.STRING)
   roleName: 'admin' | 'user';
+
   @CreatedAt
   createdAt: Date;
 

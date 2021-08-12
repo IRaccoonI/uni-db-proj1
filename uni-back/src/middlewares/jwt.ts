@@ -72,12 +72,6 @@ export interface IJWTState extends DefaultState {
     iat: number;
     id: number;
     login: string;
-    firstName: string;
-    secondName: string;
-    lastName: string | null;
-    role: {
-      id: 1 | 2 | 3;
-      name: string;
-    };
+    roleName: string;
   };
 }
