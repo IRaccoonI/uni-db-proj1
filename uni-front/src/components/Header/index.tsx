@@ -3,8 +3,8 @@ import { ReactElement, useCallback } from 'react';
 import styled from 'styled-components';
 import { Container } from 'react-bootstrap';
 
-import { AppDispatch } from 'redux/store';
-import { useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from 'redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { logout } from 'redux/slices/auth';
 import LinkBtn from './LinkBtn';
@@ -13,6 +13,8 @@ import { useLocation } from 'react-router';
 function Header(): ReactElement {
   const path = useLocation();
   const dispatch: AppDispatch = useDispatch();
+
+  const userRole = useSelector((store: RootState) => store.auth.user?.roleName);
 
   const logoutCb = useCallback(() => {
     dispatch(logout());
@@ -25,11 +27,13 @@ function Header(): ReactElement {
           <LinkBtn text="Posts" to="/" isActive={path.pathname === '/'} />
         </div>
         <div className="float-end h-100 rc">
-          <LinkBtn
-            text="Manage posts"
-            to="/manage-posts"
-            isActive={path.pathname === '/manage-posts'}
-          />
+          {userRole !== 'admin' ? null : (
+            <LinkBtn
+              text="Manage posts"
+              to="/manage-posts"
+              isActive={path.pathname === '/manage-posts'}
+            />
+          )}
           <LinkBtn
             text="Create post posts"
             to="/create-post"

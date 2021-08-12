@@ -15,6 +15,7 @@ import PrivateRoute from 'components/PrivateRouter';
 import Login from 'components/Login';
 import Header from 'components/Header';
 import NotFound from 'components/NotFound';
+import CreatePost from 'components/CreatePost';
 
 function App(): ReactElement {
   const loggedIn = useSelector((state: RootState) => state.auth.user != null);
@@ -26,6 +27,7 @@ function App(): ReactElement {
       <Switch>
         <Route path="/login" component={Login} />
 
+        <PrivateRoute exact path="/create-post" component={CreatePost} />
         <PrivateRoute exact path="/" component={NotFound} />
         <Route>{loggedIn ? <NotFound /> : <Redirect to="/login" />}</Route>
       </Switch>

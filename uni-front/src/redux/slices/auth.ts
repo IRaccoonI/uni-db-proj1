@@ -9,7 +9,7 @@ import jwtDecode from 'jwt-decode';
 export type TokenType = {
   id: number;
   login: string;
-  roleName: string;
+  roleName: 'admin' | 'user';
   iat: number;
 };
 
@@ -50,7 +50,7 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 
 // Slice
 
-const todosSlice = createSlice({
+const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {},
@@ -84,4 +84,4 @@ const todosSlice = createSlice({
   },
 });
 
-export default todosSlice.reducer;
+export default authSlice.reducer;

@@ -36,6 +36,8 @@ function Login(): ReactElement {
       {user != null ? <Redirect to="/" /> : null}
       <Row className="h-100">
         <Card className="align-self-center w-472 p-3">
+          <p className="mb-0">admin admin</p>
+          <p className="mb-0">userr admin</p>
           <Form>
             <Form.Group className="mb-1" controlId="formBasicEmail">
               <Form.Label className="mb-0">Login:</Form.Label>

@@ -63,7 +63,18 @@ declare global {
           };
           response: Swagger.PostGet[];
         };
-        POST: {};
+        POST: {
+          body?: {
+            title: string;
+            content: string;
+            withoutVerification?: boolean;
+            [k: string]: unknown;
+          };
+          response: {
+            id: number;
+            [k: string]: unknown;
+          };
+        };
       };
     };
   }
