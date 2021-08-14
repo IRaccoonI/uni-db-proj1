@@ -1,21 +1,20 @@
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'redux/store';
 
-import { Check2, X } from 'react-bootstrap-icons';
 import styled from 'styled-components';
 import Post, { PostProp } from './index';
 import { postsManageVrrdict } from 'redux/slices/posts';
+import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
 
-import SimpleInputForm from '../SimpleInputForm';
-
-export interface PostManageProp
-  extends Omit<PostProp, 'commentsCount' | 'viewsCount'> {
+export interface PostViewProp extends PostProp {
+  likesSum: number;
+  selfLikeValue: number;
   className?: string;
 }
 
-function ManagePost(prop: PostManageProp): ReactElement {
-  const [showSimpleInput, setShowSimpleInput] = useState(false);
+function ViewPost(prop: PostViewProp): ReactElement {
+  // const [viewed, setViewed] = useState(false);
   const dispatch: AppDispatch = useDispatch();
 
   const verdictCb = useCallback(
@@ -34,45 +33,32 @@ function ManagePost(prop: PostManageProp): ReactElement {
   );
 
   return (
-    <ManagePostStyled>
+    <ViewPostStyled>
       <div className={'d-flex flex-row ' + prop.className || ''}>
         <div className="lc">
           <div className="btn-wrapper ok" onClick={() => verdictCb('ok')}>
-            <Check2 />
+            <ChevronUp />
           </div>
-          <div
-            className="btn-wrapper ne-ok"
-            onClick={() => setShowSimpleInput(true)}
-          >
-            <X />
+          <div className="btn-wrapper ne-ok">
+            <ChevronDown />
           </div>
         </div>
         <div className="flex-grow-1 rc">
           <Post {...prop} />
-          {!showSimpleInput ? null : (
-            <SimpleInputForm
-              placeholderText="Enter Reason..."
-              submitCd={(text) => {
-                verdictCb('ne-ok', text);
-                setShowSimpleInput(false);
-              }}
-              className="mt-2"
-            />
-          )}
         </div>
       </div>
-    </ManagePostStyled>
+    </ViewPostStyled>
   );
 }
 
-const ManagePostStyled = styled.div`
+const ViewPostStyled = styled.div`
   .lc {
     margin-right: 5px;
     font-size: 2em;
   }
 
   .lc > .btn-wrapper {
-    height: 50px;
+    height: 40px;
     width: 70px;
     text-align: center;
     vertical-align: middle;
@@ -89,4 +75,4 @@ const ManagePostStyled = styled.div`
   }
 `;
 
-export default ManagePost;
+export default ViewPost;

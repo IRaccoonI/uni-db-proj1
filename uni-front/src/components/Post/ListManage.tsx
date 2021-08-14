@@ -6,27 +6,20 @@ import { AppDispatch, RootState } from 'redux/store';
 
 import styled from 'styled-components';
 import ManagePost from './Manage';
-import ViewPost from './View';
 
-interface PostListProp {
-  as: 'manage' | 'view';
-}
-
-function ListPosts(prop: PostListProp): ReactElement {
+function ListManagePosts(): ReactElement {
   const dispatch: AppDispatch = useDispatch();
   const posts = useSelector((store: RootState) => store.posts.postsManage);
 
   useEffect(() => {
-    const verificationResult =
-      prop.as === 'manage' ? 'null' : prop.as === 'view' ? 'true' : 'null';
     dispatch(
       postsGetManage({
-        verificationResult: verificationResult,
+        verificationResult: 'null',
       }),
     );
 
     return () => {
-      if (prop.as === 'manage') postsManageClear();
+      postsManageClear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -34,14 +27,9 @@ function ListPosts(prop: PostListProp): ReactElement {
   return (
     <ListPostsStyled>
       <Container className="mt-4">
-        {posts?.map((post, ind) => {
-          switch (prop.as) {
-            case 'manage':
-              return <ManagePost key={ind} {...post} className="mt-4" />;
-            case 'view':
-              return <ViewPost key={ind} {...post} className="mt-4" />;
-          }
-        })}
+        {posts?.map((post, ind) => (
+          <ManagePost key={ind} {...post} className="mt-4" />
+        ))}
         <div></div>
       </Container>
     </ListPostsStyled>
@@ -50,4 +38,4 @@ function ListPosts(prop: PostListProp): ReactElement {
 
 const ListPostsStyled = styled.div``;
 
-export default ListPosts;
+export default ListManagePosts;

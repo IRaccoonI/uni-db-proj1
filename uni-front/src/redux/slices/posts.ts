@@ -6,7 +6,7 @@ import { store } from 'redux/store';
 
 // Types
 
-export type Post = {
+export type PostManage = {
   id: number;
   title: string;
   content: string;
@@ -24,9 +24,17 @@ export type Post = {
   } | null;
 };
 
+export type PostView = PostManage & {
+  likesSum: number;
+  commentsCount: number;
+  viewsCount: number;
+  selfLikeValue: number;
+};
+
 export type PostState = {
   status: string;
-  postsManage?: Post[];
+  postsManage?: PostManage[];
+  postsView?: PostView[];
 };
 
 // Init state
@@ -34,6 +42,7 @@ export type PostState = {
 const initialState: PostState = {
   status: 'idle',
   postsManage: [],
+  postsView: [],
 };
 
 // Thunk functions
@@ -117,7 +126,7 @@ export const postsPatchValidated = createAsyncThunk(
 );
 
 export const postsGetManage = createAsyncThunk(
-  'posts/get',
+  'posts/manage/get',
   async (query: { verificationResult: 'true' | 'false' | 'null' }, api) => {
     try {
       const posts = await taxios.get('/posts/manage', {
@@ -130,7 +139,31 @@ export const postsGetManage = createAsyncThunk(
           },
         },
       });
-      return posts.data as Post[];
+      return posts.data as PostManage[];
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
+
+export const postsGetView = createAsyncThunk(
+  'posts/get',
+  async (query: { verificationResult: 'true' | 'false' | 'null' }, api) => {
+    try {
+      const posts = await taxios.get('/posts', {
+        query: {
+          verificationResult: query.verificationResult,
+        },
+        axios: {
+          headers: {
+            authorization: 'Bearer ' + store.getState().auth.jwt,
+          },
+        },
+      });
+      return posts.data as PostView[];
     } catch (e) {
       return api.rejectWithValue({
         status: e.response.data.status,
@@ -183,6 +216,9 @@ const postsSlice = createSlice({
     postsManageClear(state: PostState) {
       state.postsManage = [];
     },
+    postsViewClear(state: PostState) {
+      state.postsView = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -194,6 +230,17 @@ const postsSlice = createSlice({
         state.postsManage = action.payload;
       })
       .addCase(postsPost.rejected, (state: PostState) => {
+        state.status = 'idle';
+      });
+    builder
+      .addCase(postsGetView.pending, (state: PostState) => {
+        state.status = 'loading';
+      })
+      .addCase(postsGetView.fulfilled, (state: PostState, action) => {
+        state.status = 'idle';
+        state.postsView = action.payload;
+      })
+      .addCase(postsGetView.rejected, (state: PostState) => {
         state.status = 'idle';
       });
     builder
@@ -211,6 +258,6 @@ const postsSlice = createSlice({
   },
 });
 
-export const { postsManageClear } = postsSlice.actions;
+export const { postsManageClear, postsViewClear } = postsSlice.actions;
 
 export default postsSlice.reducer;
