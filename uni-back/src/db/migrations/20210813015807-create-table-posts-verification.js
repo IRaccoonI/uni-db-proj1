@@ -1,7 +1,9 @@
+'use strict';
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     queryInterface.createTable(
-      'posts',
+      'posts_verifications',
       {
         id: {
           type: Sequelize.INTEGER,
@@ -9,18 +11,18 @@ module.exports = {
           autoIncrement: true,
           primaryKey: true,
         },
-        title: {
-          type: Sequelize.STRING,
-          allowNull: false,
-        },
-        content: {
-          type: Sequelize.STRING,
-          allowNull: false,
-        },
-        owner_id: {
+        post_id: {
           type: Sequelize.INTEGER,
           allowNull: false,
-          references: { model: 'users', key: 'id' },
+          references: { model: 'posts', key: 'id' },
+        },
+        result: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+        },
+        reason: {
+          type: Sequelize.STRING,
+          allowNull: true,
         },
         created_at: {
           allowNull: false,
@@ -41,6 +43,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('posts');
+    return queryInterface.dropTable('posts_verifications');
   },
 };

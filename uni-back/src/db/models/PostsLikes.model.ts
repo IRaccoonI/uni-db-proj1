@@ -3,7 +3,12 @@ import { Table, Column, Model, DataType, ForeignKey, PrimaryKey, AutoIncrement, 
 import Users from './Users.model';
 import Posts from './Posts.model';
 
-@Table
+@Table({
+  paranoid: false,
+  timestamps: false,
+  createdAt: false,
+  updatedAt: false,
+})
 export default class PostsLikes extends Model {
   @AutoIncrement
   @PrimaryKey

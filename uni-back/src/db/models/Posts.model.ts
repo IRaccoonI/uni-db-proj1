@@ -1,3 +1,5 @@
+// тут мега кривой и костыльный момент с последней валидацией
+
 import {
   Table,
   Column,
@@ -17,23 +19,43 @@ import {
 
 import Users from './Users.model';
 import PostsLikes from './PostsLikes.model';
+import PostsVerifications from './PostsVerifications.model';
+import { Sequelize } from 'sequelize';
 
 @DefaultScope(() => ({
   attributes: ['id', 'title', 'content', 'updatedAt'],
 }))
 @Scopes(() => ({
-  lightList: {
-    attributes: ['id', 'title', 'content', 'updatedAt', 'likesCount'],
-    include: [
-      {
-        model: Users,
-        attributes: ['id', 'login'],
-      },
-      {
-        model: PostsLikes,
-        attributes: ['value'],
-      },
-    ],
+  manageList(verification) {
+    return {
+      attributes: [
+        'id',
+        'title',
+        'content',
+        'updatedAt',
+        [
+          Sequelize.fn('COALESCE', Sequelize.cast(Sequelize.fn('SUM', Sequelize.col('likes.value')), 'int'), 0),
+          'likesCount',
+        ],
+        'lastVerification',
+      ],
+      include: [
+        {
+          model: PostsVerifications,
+          attributes: ['id', 'result', 'reason'],
+          order: [['id', 'DESC']],
+        },
+        {
+          model: Users,
+          attributes: ['id', 'login'],
+        },
+        {
+          model: PostsLikes,
+          attributes: [],
+        },
+      ],
+      group: ['Posts.id', 'owner.id', 'verification.id'],
+    };
   },
 }))
 @Table
@@ -56,15 +78,24 @@ export default class Posts extends Model {
   @BelongsTo(() => Users)
   owner: Users;
 
-  @Column(DataType.BOOLEAN)
-  validated: boolean;
+  @HasMany(() => PostsVerifications)
+  verification: PostsVerifications[];
 
   @HasMany(() => PostsLikes)
   likes: PostsLikes[];
 
   @Column(DataType.VIRTUAL)
-  get likesCount(): number {
+  get likesValue(): number {
     return !this.likes ? 0 : this.likes.reduce((p, c) => p + c.value, 0);
+  }
+
+  @Column(DataType.VIRTUAL)
+  get lastVerification(): PostsVerifications {
+    return this.verification.length == 0
+      ? null
+      : this.verification.length == 1
+      ? this.verification[0]
+      : this.verification.reduce((p, c) => (c.id > p.id ? c : p));
   }
 
   @CreatedAt
