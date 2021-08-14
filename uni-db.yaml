@@ -86,7 +86,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostGet'
+                  $ref: '#/components/schemas/PostGetLight'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -98,8 +98,12 @@ paths:
         - schema:
             type: boolean
             default: true
+            enum:
+              - 'null'
+              - 'true'
+              - 'false'
           in: query
-          name: validated
+          name: verificationResult
       security:
         - BearerAuth: []
     post:
@@ -145,6 +149,111 @@ paths:
       parameters: []
       security:
         - BearerAuth: []
+  '/posts/{id}':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: post id
+    get:
+      description: get post by id
+      summary: Your GET endpoint
+      tags:
+        - posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostGetDetail'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      operationId: get-posts-id
+      security:
+        - BearerAuth: []
+  '/posts/{id}/verification':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: post id
+    patch:
+      description: set verification result for post
+      summary: Your GET endpoint
+      tags:
+        - posts
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      operationId: get-posts-id-validated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result:
+                  type: boolean
+                reason:
+                  type: string
+              required:
+                - result
+      security:
+        - BearerAuth: []
+  '/posts/{id}/like':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: post id
+    post:
+      summary: ''
+      operationId: post-posts-id-like
+      responses:
+        '200':
+          description: OK
+      tags:
+        - posts
+      description: new or toggle/replace old like for post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: number
+                  enum:
+                    - -1
+                    - 1
+              required:
+                - value
+      security:
+        - BearerAuth: []
 components:
   securitySchemes:
     BearerAuth:
@@ -154,6 +263,12 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: Not
       content:
         application/json:
           schema:
@@ -201,8 +316,57 @@ components:
       required:
         - login
         - password
-    PostGet:
-      title: PostGet
+    PostGetLight:
+      title: PostGetLight
+      type: object
+      properties:
+        postId:
+          type: number
+        title:
+          type: string
+        content:
+          type: string
+        owner:
+          type: object
+          required:
+            - id
+            - login
+          properties:
+            id:
+              type: number
+            login:
+              type: string
+        createdAt:
+          type: string
+        commentsCount:
+          type: number
+        likesSum:
+          type: number
+        latsVerification:
+          type: object
+          required:
+            - id
+            - result
+            - reson
+          nullable: true
+          properties:
+            id:
+              type: number
+            result:
+              type: boolean
+            reson:
+              type: string
+      required:
+        - id
+        - title
+        - content
+        - owner
+        - createdAt
+        - commentsCount
+        - likesSum
+        - latsVerification
+    PostGetDetail:
+      title: PostGetDetail
       type: object
       properties:
         id:
