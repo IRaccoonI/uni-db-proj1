@@ -45,7 +45,7 @@ declare global {
         login: string;
         [k: string]: unknown;
       };
-      createdAt: string;
+      updatedAt: string;
       latsVerification: {
         id: number;
         result: boolean;
