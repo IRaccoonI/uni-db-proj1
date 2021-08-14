@@ -14,8 +14,8 @@ export interface PostProp {
     login: string;
   };
   updatedAt: string;
-  commentsConunt?: number;
-  viewsConunt?: number;
+  commentsCount?: number;
+  viewsCount?: number;
 }
 
 const MILLISECONDS_IN_SECOND = 1000;
@@ -59,8 +59,9 @@ function Post(prop: PostProp): ReactElement {
 
   useInterval(() => {
     setMinutesPass(correctStrDate(prop.updatedAt));
+    // eslint-disable-next-line no-console
+    console.log(prop.viewsCount);
   }, 500);
-  // chevron-down
   return (
     <div className="post">
       <PostStyled>
@@ -75,18 +76,18 @@ function Post(prop: PostProp): ReactElement {
             </div>
           </div>
           <div className="post-content px-3 py-2">{prop.content}</div>
-          {(prop.commentsConunt ?? prop.viewsConunt) === undefined ? null : (
+          {(prop.commentsCount ?? prop.viewsCount) == null ? null : (
             <div className="post-footer px-3 py-2">
-              {prop.commentsConunt === undefined ? null : (
+              {prop.commentsCount === undefined ? null : (
                 <div className="d-inline h-100 me-2">
                   <ChatLeft />
-                  <span className="ms-1">{prop.commentsConunt}</span>
+                  <span className="ms-1">{prop.commentsCount}</span>
                 </div>
               )}
-              {prop.viewsConunt === undefined ? null : (
+              {prop.viewsCount === undefined ? null : (
                 <div className="d-inline  h-100">
                   <EyeFill />
-                  <span className="ms-1">{prop.viewsConunt}</span>
+                  <span className="ms-1">{prop.viewsCount}</span>
                 </div>
               )}
             </div>
