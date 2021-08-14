@@ -22,10 +22,10 @@ import PostsLikes from '../db/models/PostsLikes.model';
 const TFN = (str: 'true' | 'false' | 'null'): boolean | null => (str == 'true' ? true : str == 'false' ? false : null);
 
 export default function registerRoute(router: Router) {
-  interface PostsGetCtx extends Context {
+  interface PostsManageGetCtx extends Context {
     state: IJWTState;
   }
-  router.get('/', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsGetCtx) => {
+  router.get('/manage', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsManageGetCtx) => {
     const verificationResult = (ctx.request.query as PostsGetQueryType).verificationResult;
 
     if (verificationResult && ctx.state.userModel.roleName != 'admin') {
@@ -48,12 +48,86 @@ export default function registerRoute(router: Router) {
       let curJson: any = post.toJSON();
       delete curJson.likes;
       delete curJson.verification;
+
       res.push(curJson);
     });
 
     ctx.status = 200;
     ctx.type = 'json';
     ctx.body = res;
+  });
+
+  interface PostsGetCtx extends Context {
+    state: IJWTState;
+  }
+  router.get('/', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsGetCtx) => {
+    const verificationResult = (ctx.request.query as PostsGetQueryType).verificationResult;
+
+    if (verificationResult && ctx.state.userModel.roleName != 'admin') {
+      ctx.throw(403, 'You cannot manage new posts');
+    }
+
+    let posts = await Posts.scope('viewList').findAll({
+      where: {},
+      order: ['updatedAt'],
+    });
+
+    let res: { id: number }[] = [];
+
+    posts.forEach((post) => {
+      if (
+        (post.lastVerification != null || verificationResult != 'null') &&
+        (post.lastVerification == null || post.lastVerification.result != TFN(verificationResult))
+      )
+        return;
+
+      let curJson: any = post.toJSON();
+      delete curJson.likes;
+      delete curJson.verification;
+      delete curJson.lastVerification;
+
+      curJson['likesSum'] = post.likes.reduce((p, c) => p + c.value, 0);
+      let selfLike = post.likes.filter((like) => like.userId == ctx.state.userModel.id);
+      curJson['selfLikeValue'] = selfLike.length == 0 ? 0 : selfLike[0].value;
+
+      curJson['commentsCount'] = 228;
+
+      res.push(curJson);
+    });
+
+    ctx.status = 200;
+    ctx.type = 'json';
+    ctx.body = res;
+  });
+
+  interface PostsPostCtx extends Context {
+    state: IJWTState;
+    request: IPostsPostReq;
+  }
+  router.post('/', joiValidatePostsPost, jwtWithSetUserModel, async (ctx: PostsPostCtx) => {
+    if (ctx.request.body.withoutVerification && ctx.state.userModel.roleName != 'admin') {
+      ctx.throw(403, 'You cannot create a post without verification');
+    }
+
+    const newPost = await Posts.create({
+      title: ctx.request.body.title,
+      content: ctx.request.body.content,
+      ownerId: ctx.state.userModel.id,
+    });
+
+    if (ctx.request.body.withoutVerification) {
+      await PostsVerifications.create({
+        postId: newPost.id,
+        result: true,
+        reason: 'Without verification',
+      });
+    }
+
+    ctx.status = 200;
+    ctx.type = 'json';
+    ctx.body = {
+      id: newPost.id,
+    };
   });
 
   interface PostsPatchValideteCtx extends Context {
@@ -72,6 +146,10 @@ export default function registerRoute(router: Router) {
 
       if (ctx.state.userModel.roleName != 'admin') {
         ctx.throw(403, 'Forbidden for non admin');
+      }
+
+      if ((await Posts.findOne({ where: { id: postId } })) == null) {
+        ctx.throw(404, 'Post not Found');
       }
 
       await PostsVerifications.create({
@@ -95,6 +173,10 @@ export default function registerRoute(router: Router) {
       ctx.throw(400, 'Id must be number');
     }
 
+    if ((await Posts.findOne({ where: { id: postId } })) == null) {
+      ctx.throw(404, 'Post not Found');
+    }
+
     const prevLike = await PostsLikes.findOne({
       where: {
         userId: ctx.state.userModel.id,
@@ -102,17 +184,21 @@ export default function registerRoute(router: Router) {
       },
     });
 
+    let currentSelfLikeValue;
+
     if (prevLike == null) {
       await PostsLikes.create({
         userId: ctx.state.userModel.id,
         postId: postId,
         value: ctx.request.body.value,
       });
+      currentSelfLikeValue = ctx.request.body.value;
     } else if (prevLike.value === ctx.request.body.value) {
       await PostsLikes.destroy({
         where: {},
         truncate: true,
       });
+      currentSelfLikeValue = 0;
     } else {
       await PostsLikes.update(
         {
@@ -122,33 +208,45 @@ export default function registerRoute(router: Router) {
           where: {},
         },
       );
+      currentSelfLikeValue = ctx.request.body.value;
     }
 
-    ctx.status = 200;
-    ctx.type = 'json';
-  });
-
-  interface PostsPostCtx extends Context {
-    state: IJWTState;
-    request: IPostsPostReq;
-  }
-  router.post('/', joiValidatePostsPost, jwtWithSetUserModel, async (ctx: PostsPostCtx) => {
-    if (ctx.request.body.withoutVerification && ctx.state.userModel.roleName != 'admin') {
-      ctx.throw(403, 'You cannot create a post without verification');
-    }
-
-    const newPost = await Posts.scope('defaultScope').create({
-      title: ctx.request.body.title,
-      content: ctx.request.body.content,
-      ownerId: ctx.state.userModel.id,
+    const currentSumLikes = await PostsLikes.sum('value', {
+      where: {
+        postId: postId,
+      },
     });
-
-    //add verificationResult
 
     ctx.status = 200;
     ctx.type = 'json';
     ctx.body = {
-      id: newPost.id,
+      currentSumLikes: isNaN(currentSumLikes) ? 0 : currentSumLikes,
+      currentSelfLikeValue: currentSelfLikeValue,
+    };
+  });
+
+  router.post('/:id/incrementView', jwtWithSetUserModel, async (ctx: PostPostLikeCtx) => {
+    const postId: number = parseInt(ctx.params.id);
+    if (postId == null) {
+      ctx.throw(400, 'Id must be number');
+    }
+
+    const curPost = await Posts.findOne({
+      where: {
+        id: postId,
+      },
+    });
+
+    if (curPost == null) {
+      ctx.throw(404, 'Post not Found');
+    }
+
+    await curPost.increment('viewsCount');
+
+    ctx.status = 200;
+    ctx.type = 'json';
+    ctx.body = {
+      currentViewsCount: curPost.viewsCount,
     };
   });
 }

@@ -22,40 +22,38 @@ import PostsLikes from './PostsLikes.model';
 import PostsVerifications from './PostsVerifications.model';
 import { Sequelize } from 'sequelize';
 
-@DefaultScope(() => ({
-  attributes: ['id', 'title', 'content', 'updatedAt'],
-}))
 @Scopes(() => ({
-  manageList(verification) {
-    return {
-      attributes: [
-        'id',
-        'title',
-        'content',
-        'updatedAt',
-        [
-          Sequelize.fn('COALESCE', Sequelize.cast(Sequelize.fn('SUM', Sequelize.col('likes.value')), 'int'), 0),
-          'likesCount',
-        ],
-        'lastVerification',
-      ],
-      include: [
-        {
-          model: PostsVerifications,
-          attributes: ['id', 'result', 'reason'],
-          order: [['id', 'DESC']],
-        },
-        {
-          model: Users,
-          attributes: ['id', 'login'],
-        },
-        {
-          model: PostsLikes,
-          attributes: [],
-        },
-      ],
-      group: ['Posts.id', 'owner.id', 'verification.id'],
-    };
+  manageList: {
+    attributes: ['id', 'title', 'content', 'updatedAt', 'lastVerification'],
+    include: [
+      {
+        model: PostsVerifications,
+        attributes: ['id', 'result', 'reason'],
+        order: [['id', 'DESC']],
+      },
+      {
+        model: Users,
+        attributes: ['id', 'login'],
+      },
+    ],
+  },
+  viewList: {
+    attributes: ['id', 'title', 'content', 'updatedAt', 'lastVerification', 'viewsCount'],
+    include: [
+      {
+        model: PostsVerifications,
+        attributes: ['id', 'result', 'reason'],
+        order: [['id', 'DESC']],
+      },
+      {
+        model: Users,
+        attributes: ['id', 'login'],
+      },
+      {
+        model: PostsLikes,
+        attributes: ['userId', 'value'],
+      },
+    ],
   },
 }))
 @Table
@@ -83,6 +81,9 @@ export default class Posts extends Model {
 
   @HasMany(() => PostsLikes)
   likes: PostsLikes[];
+
+  @Column(DataType.INTEGER)
+  viewsCount: number;
 
   @Column(DataType.VIRTUAL)
   get likesValue(): number {

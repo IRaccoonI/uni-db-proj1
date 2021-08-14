@@ -17,6 +17,11 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        views_count: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 1,
+        },
         owner_id: {
           type: Sequelize.INTEGER,
           allowNull: false,

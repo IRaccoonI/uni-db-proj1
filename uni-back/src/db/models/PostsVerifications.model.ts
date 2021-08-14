@@ -13,6 +13,7 @@ import {
 import Posts from './Posts.model';
 @DefaultScope(() => ({
   attributes: ['id', 'result', 'reason'],
+  order: [['id', 'DESC']],
 }))
 @Table
 export default class PostsVerifications extends Model {
