@@ -50,32 +50,10 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         '401':
           $ref: '#/components/responses/BadRequestError'
-  /roles:
-    get:
-      summary: Get list of all users roles
-      description: Get all roles of users
-      operationId: get-user-roles
-      tags:
-        - const
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    roleName:
-                      type: string
-                  required:
-                    - roleName
-    parameters: []
   /posts:
     get:
       summary: Your GET endpoint
-      description: get posts
+      description: get posts for view
       tags:
         - posts
       responses:
@@ -86,7 +64,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PostGetLight'
+                  $ref: '#/components/schemas/PostGetView'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -96,8 +74,8 @@ paths:
       operationId: get-posts
       parameters:
         - schema:
-            type: boolean
-            default: true
+            type: string
+            default: 'true'
             enum:
               - 'null'
               - 'true'
@@ -147,6 +125,40 @@ paths:
                 - title
                 - content
       parameters: []
+      security:
+        - BearerAuth: []
+  /posts/manage:
+    get:
+      summary: Your GET endpoint
+      description: get posts for manage
+      tags:
+        - posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostGetManage'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+      operationId: get-posts-manage
+      parameters:
+        - schema:
+            type: string
+            default: 'true'
+            enum:
+              - 'null'
+              - 'true'
+              - 'false'
+          in: query
+          name: verificationResult
       security:
         - BearerAuth: []
   '/posts/{id}':
@@ -236,6 +248,26 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentSelfLikeValue:
+                    type: number
+                  currentSumLikes:
+                    type: number
+                required:
+                  - currentSelfLikeValue
+                  - currentSumLikes
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
       tags:
         - posts
       description: new or toggle/replace old like for post
@@ -254,6 +286,63 @@ paths:
                 - value
       security:
         - BearerAuth: []
+  '/posts/{id}/incrementView':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: post id
+    post:
+      summary: ''
+      operationId: post-posts-id-increment-veiw
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentViewsCount:
+                    type: number
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      tags:
+        - posts
+      description: new or toggle/replace old like for post
+      security:
+        - BearerAuth: []
+  /roles:
+    get:
+      summary: Get list of all users roles
+      description: Get all roles of users
+      operationId: get-user-roles
+      tags:
+        - const
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    roleName:
+                      type: string
+                  required:
+                    - roleName
+    parameters: []
 components:
   securitySchemes:
     BearerAuth:
@@ -316,8 +405,8 @@ components:
       required:
         - login
         - password
-    PostGetLight:
-      title: PostGetLight
+    PostGetManage:
+      title: PostGetManage
       type: object
       properties:
         postId:
@@ -338,10 +427,6 @@ components:
               type: string
         createdAt:
           type: string
-        commentsCount:
-          type: number
-        likesSum:
-          type: number
         latsVerification:
           type: object
           required:
@@ -357,14 +442,61 @@ components:
             reson:
               type: string
       required:
-        - id
         - title
         - content
         - owner
         - createdAt
-        - commentsCount
-        - likesSum
         - latsVerification
+    PostGetView:
+      title: PostGetView
+      type: object
+      properties:
+        postId:
+          type: number
+        title:
+          type: string
+        content:
+          type: string
+        owner:
+          type: object
+          required:
+            - id
+            - login
+          properties:
+            id:
+              type: number
+            login:
+              type: string
+        createdAt:
+          type: string
+        latsVerification:
+          type: object
+          required:
+            - id
+            - result
+            - reson
+          nullable: true
+          properties:
+            id:
+              type: number
+            result:
+              type: boolean
+            reson:
+              type: string
+        likesSum:
+          type: number
+        commentsCount:
+          type: number
+        viewsCount:
+          type: number
+      required:
+        - title
+        - content
+        - owner
+        - createdAt
+        - latsVerification
+        - likesSum
+        - commentsCount
     PostGetDetail:
       title: PostGetDetail
       type: object
