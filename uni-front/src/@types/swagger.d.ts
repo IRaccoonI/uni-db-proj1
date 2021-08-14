@@ -1,5 +1,5 @@
 declare global {
-  namespace Swagger {
+  export namespace Swagger {
     /**
      * object with detail of error
      */
@@ -21,19 +21,43 @@ declare global {
       password: string;
       [k: string]: unknown;
     }
-    export interface PostGet {
-      id?: number;
-      title?: string;
-      text?: string;
-      owner?: string;
-      createdAt?: number;
-      commentsCount?: number;
-      likesCount?: number;
+    export interface PostGetLight {
+      id: number;
+      title: string;
+      content: string;
+      owner: {
+        id: number;
+        login: string;
+        [k: string]: unknown;
+      };
+      updatedAt: string;
+      commentsCount: number;
+      likesSum: number;
+      latsVerification: {
+        id: number;
+        result: boolean;
+        reson: string;
+        [k: string]: unknown;
+      };
+      [k: string]: unknown;
+    }
+    export interface PostGetDetail {
+      id: number;
+      title: string;
+      content: string;
+      owner: {
+        id: number;
+        login: string;
+        [k: string]: unknown;
+      };
+      createdAt: number;
+      commentsCount: number;
+      likesCount: number;
       [k: string]: unknown;
     }
   }
 
-  interface Swagger {
+  export interface Swagger {
     version: '1';
     routes: {
       '/authorization/login': {
@@ -59,9 +83,9 @@ declare global {
       '/posts': {
         GET: {
           query?: {
-            validated?: boolean;
+            verificationResult?: 'null' | 'true' | 'false';
           };
-          response: Swagger.PostGet[];
+          response: Swagger.PostGetLight[];
         };
         POST: {
           body?: {
@@ -73,6 +97,37 @@ declare global {
           response: {
             id: number;
             [k: string]: unknown;
+          };
+        };
+      };
+      '/posts/{id}': {
+        GET: {
+          params: {
+            id: number;
+          };
+          response: Swagger.PostGetDetail;
+        };
+      };
+      '/posts/{id}/verification': {
+        PATCH: {
+          body?: {
+            result: boolean;
+            reason?: string;
+            [k: string]: unknown;
+          };
+          params: {
+            id: number;
+          };
+        };
+      };
+      '/posts/{id}/like': {
+        POST: {
+          body?: {
+            value: -1 | 1;
+            [k: string]: unknown;
+          };
+          params: {
+            id: number;
           };
         };
       };
