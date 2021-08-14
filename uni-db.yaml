@@ -442,6 +442,7 @@ components:
             reson:
               type: string
       required:
+        - id
         - title
         - content
         - owner
@@ -490,6 +491,7 @@ components:
         viewsCount:
           type: number
       required:
+        - id
         - title
         - content
         - owner
