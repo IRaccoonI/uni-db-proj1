@@ -1,5 +1,5 @@
 declare global {
-  export namespace Swagger {
+  namespace Swagger {
     /**
      * object with detail of error
      */
@@ -21,8 +21,8 @@ declare global {
       password: string;
       [k: string]: unknown;
     }
-    export interface PostGetLight {
-      id: number;
+    export interface PostGetManage {
+      postId?: number;
       title: string;
       content: string;
       owner: {
@@ -30,15 +30,34 @@ declare global {
         login: string;
         [k: string]: unknown;
       };
-      updatedAt: string;
-      commentsCount: number;
-      likesSum: number;
+      createdAt: string;
       latsVerification: {
         id: number;
         result: boolean;
         reson: string;
         [k: string]: unknown;
       };
+      [k: string]: unknown;
+    }
+    export interface PostGetView {
+      postId?: number;
+      title: string;
+      content: string;
+      owner: {
+        id: number;
+        login: string;
+        [k: string]: unknown;
+      };
+      createdAt: string;
+      latsVerification: {
+        id: number;
+        result: boolean;
+        reson: string;
+        [k: string]: unknown;
+      };
+      likesSum: number;
+      commentsCount: number;
+      viewsCount?: number;
       [k: string]: unknown;
     }
     export interface PostGetDetail {
@@ -57,7 +76,7 @@ declare global {
     }
   }
 
-  export interface Swagger {
+  interface Swagger {
     version: '1';
     routes: {
       '/authorization/login': {
@@ -72,20 +91,12 @@ declare global {
           };
         };
       };
-      '/roles': {
-        GET: {
-          response: {
-            roleName: string;
-            [k: string]: unknown;
-          }[];
-        };
-      };
       '/posts': {
         GET: {
           query?: {
             verificationResult?: 'null' | 'true' | 'false';
           };
-          response: Swagger.PostGetLight[];
+          response: Swagger.PostGetView[];
         };
         POST: {
           body?: {
@@ -98,6 +109,14 @@ declare global {
             id: number;
             [k: string]: unknown;
           };
+        };
+      };
+      '/posts/manage': {
+        GET: {
+          query?: {
+            verificationResult?: 'null' | 'true' | 'false';
+          };
+          response: Swagger.PostGetManage[];
         };
       };
       '/posts/{id}': {
@@ -129,6 +148,30 @@ declare global {
           params: {
             id: number;
           };
+          response: {
+            currentSelfLikeValue: number;
+            currentSumLikes: number;
+            [k: string]: unknown;
+          };
+        };
+      };
+      '/posts/{id}/incrementView': {
+        POST: {
+          params: {
+            id: number;
+          };
+          response: {
+            currentViewsCount?: number;
+            [k: string]: unknown;
+          };
+        };
+      };
+      '/roles': {
+        GET: {
+          response: {
+            roleName: string;
+            [k: string]: unknown;
+          }[];
         };
       };
     };
