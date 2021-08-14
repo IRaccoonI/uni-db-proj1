@@ -52,7 +52,10 @@ function ManagePost(prop: PostManageProp): ReactElement {
           {!showSimpleInput ? null : (
             <SimpleInputForm
               placeholderText="Enter Reason..."
-              submitCd={(text) => verdictCb('ne-ok', text)}
+              submitCd={(text) => {
+                verdictCb('ne-ok', text);
+                setShowSimpleInput(false);
+              }}
               className="mt-2"
             />
           )}
