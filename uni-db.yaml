@@ -409,7 +409,7 @@ components:
       title: PostGetManage
       type: object
       properties:
-        postId:
+        id:
           type: number
         title:
           type: string
@@ -425,7 +425,7 @@ components:
               type: number
             login:
               type: string
-        createdAt:
+        updatedAt:
           type: string
         latsVerification:
           type: object
@@ -445,13 +445,13 @@ components:
         - title
         - content
         - owner
-        - createdAt
+        - updatedAt
         - latsVerification
     PostGetView:
       title: PostGetView
       type: object
       properties:
-        postId:
+        id:
           type: number
         title:
           type: string
@@ -467,7 +467,7 @@ components:
               type: number
             login:
               type: string
-        createdAt:
+        updatedAt:
           type: string
         latsVerification:
           type: object
@@ -493,7 +493,7 @@ components:
         - title
         - content
         - owner
-        - createdAt
+        - updatedAt
         - latsVerification
         - likesSum
         - commentsCount

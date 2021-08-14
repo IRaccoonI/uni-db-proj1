@@ -1,5 +1,5 @@
 declare global {
-  namespace Swagger {
+  export namespace Swagger {
     /**
      * object with detail of error
      */
@@ -22,25 +22,22 @@ declare global {
       [k: string]: unknown;
     }
     export interface PostGetManage {
-      postId?: number;
+      id?: number;
       title: string;
       content: string;
       owner: {
         id: number;
         login: string;
-        [k: string]: unknown;
       };
-      createdAt: string;
+      updatedAt: string;
       latsVerification: {
         id: number;
         result: boolean;
         reson: string;
-        [k: string]: unknown;
       };
-      [k: string]: unknown;
     }
     export interface PostGetView {
-      postId?: number;
+      id?: number;
       title: string;
       content: string;
       owner: {
@@ -76,7 +73,7 @@ declare global {
     }
   }
 
-  interface Swagger {
+  export interface Swagger {
     version: '1';
     routes: {
       '/authorization/login': {
@@ -177,5 +174,4 @@ declare global {
     };
   }
 }
-
 export {};
