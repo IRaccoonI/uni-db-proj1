@@ -116,11 +116,11 @@ export const postsPatchValidated = createAsyncThunk(
   },
 );
 
-export const postsGet = createAsyncThunk(
+export const postsGetManage = createAsyncThunk(
   'posts/get',
   async (query: { verificationResult: 'true' | 'false' | 'null' }, api) => {
     try {
-      const posts = await taxios.get('/posts', {
+      const posts = await taxios.get('/posts/manage', {
         query: {
           verificationResult: query.verificationResult,
         },
@@ -186,10 +186,10 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(postsGet.pending, (state: PostState) => {
+      .addCase(postsGetManage.pending, (state: PostState) => {
         state.status = 'loading';
       })
-      .addCase(postsGet.fulfilled, (state: PostState, action) => {
+      .addCase(postsGetManage.fulfilled, (state: PostState, action) => {
         state.status = 'idle';
         state.postsManage = action.payload;
       })
