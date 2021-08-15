@@ -240,7 +240,7 @@ export default function registerRoute(router: Router) {
       ctx.throw(404, 'Post not Found');
     }
 
-    await curPost.increment('viewsCount');
+    await curPost.increment('viewsCount', { silent: true });
 
     ctx.status = 200;
     ctx.type = 'json';
