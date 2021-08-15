@@ -158,7 +158,7 @@ declare global {
             id: number;
           };
           response: {
-            currentViewsCount?: number;
+            currentViewsCount: number;
             [k: string]: unknown;
           };
         };

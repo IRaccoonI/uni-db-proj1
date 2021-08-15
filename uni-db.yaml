@@ -308,6 +308,8 @@ paths:
                 properties:
                   currentViewsCount:
                     type: number
+                required:
+                  - currentViewsCount
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
