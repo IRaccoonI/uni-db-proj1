@@ -9,7 +9,7 @@ interface SimpleIMpotFormProp {
   className?: string;
 }
 
-function SimpleIMpotForm(prop: SimpleIMpotFormProp): ReactElement {
+function SimpleImpotForm(prop: SimpleIMpotFormProp): ReactElement {
   const [text, setText] = useState('');
 
   return (
@@ -49,4 +49,4 @@ const SimpleIMpotFormStyled = styled.div`
   }
 `;
 
-export default SimpleIMpotForm;
+export default SimpleImpotForm;
