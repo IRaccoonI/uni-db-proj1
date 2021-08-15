@@ -32,9 +32,14 @@ export default function registerRoute(router: Router) {
       parentCommentId: commentId,
     });
 
+    const newCommentScoped = await Comments.scope('Detail').findByPk(newComment.id);
+    const resComments: any = newCommentScoped.toJSON();
+    resComments['childsCommentsCount'] = newCommentScoped.childsComments.length;
+    delete resComments.childsComments;
+
     ctx.status = 200;
     ctx.type = 'json';
-    ctx.body = { commentId: newComment.id };
+    ctx.body = resComments;
   });
 
   interface CommentsGetCtx extends Context {
@@ -50,14 +55,20 @@ export default function registerRoute(router: Router) {
       ctx.throw(404, 'Comment not Found');
     }
 
-    const curComments = await Comments.findAll({
+    const curComments = await Comments.scope('Detail').findAll({
       where: {
         parentCommentId: commentId,
       },
     });
 
-    const resComments = curComments.map((c) => c.toJSON());
+    const resComments = curComments.map((c) => {
+      let resJson: any = c.toJSON();
 
+      resJson['childsCommentsCount'] = c.childsComments.length;
+      delete resJson.childsComments;
+
+      return resJson;
+    });
     ctx.status = 200;
     ctx.type = 'json';
     ctx.body = resComments;

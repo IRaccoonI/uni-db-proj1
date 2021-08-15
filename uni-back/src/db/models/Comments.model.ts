@@ -13,20 +13,33 @@ import {
   DefaultScope,
   HasMany,
   AllowNull,
+  Scopes,
 } from 'sequelize-typescript';
 
 import Users from './Users.model';
 import Posts from './Posts.model';
 import DeletedComments from './DeletedComments.model';
-
 @DefaultScope(() => ({
   attributes: ['id', 'postId', 'parentCommentId', 'content', 'updatedAt'],
-  include: [
-    {
-      model: Users,
-      attributes: ['id', 'login'],
-    },
-  ],
+  include: {
+    model: Users,
+    attributes: ['id', 'login'],
+  },
+}))
+@Scopes(() => ({
+  Detail: {
+    attributes: ['id', 'postId', 'parentCommentId', 'content', 'updatedAt'],
+    include: [
+      {
+        model: Users,
+        attributes: ['id', 'login'],
+      },
+      {
+        model: Comments,
+        attributes: ['id'],
+      },
+    ],
+  },
 }))
 @Table
 export default class Comments extends Model {
@@ -54,8 +67,8 @@ export default class Comments extends Model {
   @Column(DataType.INTEGER)
   parentCommentId: number;
 
-  @BelongsTo(() => Comments)
-  parentComment: Comments;
+  @HasMany(() => Comments)
+  childsComments: Comments[];
 
   @HasMany(() => DeletedComments)
   deletes: DeletedComments[];

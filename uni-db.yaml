@@ -162,74 +162,6 @@ paths:
           name: verificationResult
       security:
         - BearerAuth: []
-  '/posts/{id}/comments':
-    parameters:
-      - schema:
-          type: number
-          minimum: 1
-        name: id
-        in: path
-        required: true
-        description: post id
-    get:
-      summary: Get comments list of post
-      description: get post by id
-      operationId: get-posts-coments
-      tags:
-        - comments
-        - posts
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CommentsGet'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-      security:
-        - BearerAuth: []
-    post:
-      summary: Post new comment for post
-      description: Post new comment for post
-      operationId: post-posts-id-comments
-      tags:
-        - comments
-        - posts
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  commentid:
-                    type: number
-                required:
-                  - commentid
-      security:
-        - BearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-                parentCommentId:
-                  type: number
-              required:
-                - content
   '/posts/{id}/verification':
     parameters:
       - schema:
@@ -360,6 +292,69 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       security:
         - BearerAuth: []
+  '/posts/{id}/comments':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: post id
+    get:
+      summary: Get comments list of post
+      description: get post by id
+      operationId: get-posts-coments
+      tags:
+        - comments
+        - posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentsGet'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        - BearerAuth: []
+    post:
+      summary: Post new comment for post
+      description: Post new comment for post
+      operationId: post-posts-id-comments
+      tags:
+        - comments
+        - posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentsGet'
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                parentCommentId:
+                  type: number
+              required:
+                - content
   '/comments/{id}/childs':
     parameters:
       - schema:
@@ -407,12 +402,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  commentid:
-                    type: number
-                required:
-                  - commentid
+                $ref: '#/components/schemas/CommentsGet'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -594,6 +584,8 @@ components:
           type: string
         updatedAt:
           type: string
+        childsCommentsCount:
+          type: number
       required:
         - id
         - postId
@@ -601,6 +593,7 @@ components:
         - parnetCommentId
         - content
         - updatedAt
+        - childsCommentsCount
     Owner:
       title: Owner
       type: object

@@ -45,6 +45,7 @@ declare global {
       parnetCommentId: number;
       content: string;
       updatedAt: string;
+      childsCommentsCount: number;
     }
     export interface Owner {
       id: number;
@@ -97,26 +98,6 @@ declare global {
           response: Swagger.PostGetManage[];
         };
       };
-      '/posts/{id}/comments': {
-        GET: {
-          params: {
-            id: number;
-          };
-          response: Swagger.CommentsGet[];
-        };
-        POST: {
-          body?: {
-            content: string;
-            parentCommentId?: number;
-          };
-          params: {
-            id: number;
-          };
-          response: {
-            commentid: number;
-          };
-        };
-      };
       '/posts/{id}/verification': {
         PATCH: {
           body?: {
@@ -152,6 +133,24 @@ declare global {
           };
         };
       };
+      '/posts/{id}/comments': {
+        GET: {
+          params: {
+            id: number;
+          };
+          response: Swagger.CommentsGet[];
+        };
+        POST: {
+          body?: {
+            content: string;
+            parentCommentId?: number;
+          };
+          params: {
+            id: number;
+          };
+          response: Swagger.CommentsGet;
+        };
+      };
       '/comments/{id}/childs': {
         GET: {
           params: {
@@ -166,9 +165,7 @@ declare global {
           params: {
             id: number;
           };
-          response: {
-            commentid: number;
-          };
+          response: Swagger.CommentsGet;
         };
       };
       '/roles': {
