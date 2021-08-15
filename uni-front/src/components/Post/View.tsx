@@ -19,7 +19,6 @@ function ViewPost(prop: PostViewProp): ReactElement {
 
   const likeCb = useCallback(
     (likeValue: 1 | -1) => {
-      if (likeValue === prop.selfLikeValue) return;
       dispatch(postsLike({ likeValue: likeValue, postId: prop.id }));
     },
     [prop, dispatch],
