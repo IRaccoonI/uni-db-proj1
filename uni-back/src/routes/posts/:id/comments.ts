@@ -29,7 +29,7 @@ export default function registerRoute(router: Router) {
       parentCommentId: ctx.request.body.parentCommentId,
     });
 
-    ctx.status = 201;
+    ctx.status = 200;
     ctx.type = 'json';
     ctx.body = { commentId: newComment.id };
   });

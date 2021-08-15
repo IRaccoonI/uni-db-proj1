@@ -106,11 +106,14 @@ declare global {
         };
         POST: {
           body?: {
-            content?: string;
+            content: string;
             parentCommentId?: number;
           };
           params: {
             id: number;
+          };
+          response: {
+            commentid: number;
           };
         };
       };
@@ -162,6 +165,9 @@ declare global {
           };
           params: {
             id: number;
+          };
+          response: {
+            commentid: number;
           };
         };
       };

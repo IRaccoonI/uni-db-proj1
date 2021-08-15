@@ -30,7 +30,7 @@ export default function registerRoute(router: Router) {
 
     await curPost.increment('viewsCount', { silent: true });
 
-    ctx.status = 201;
+    ctx.status = 200;
     ctx.type = 'json';
     ctx.body = {
       currentViewsCount: curPost.viewsCount,

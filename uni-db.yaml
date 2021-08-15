@@ -205,8 +205,8 @@ paths:
         - comments
         - posts
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -402,7 +402,7 @@ paths:
         - comments
         - posts
       responses:
-        '201':
+        '200':
           description: Created
           content:
             application/json:

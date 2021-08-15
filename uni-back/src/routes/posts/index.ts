@@ -83,7 +83,7 @@ export default function registerRoute(router: Router) {
       });
     }
 
-    ctx.status = 201;
+    ctx.status = 200;
     ctx.type = 'json';
     ctx.body = {
       id: newPost.id,
