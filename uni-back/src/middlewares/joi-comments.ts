@@ -19,7 +19,7 @@ function errorCallback(ctx: Context, error: Joi.ValidationError) {
 const commentsPost = {
   body: Joi.object({
     content: comment.content.required(),
-    parentCommentId: comment.id.allow(null).required(),
+    parentCommentId: comment.id,
   }).required(),
 };
 
