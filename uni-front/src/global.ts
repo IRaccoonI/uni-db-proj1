@@ -18,16 +18,31 @@ export const GlobalStyled = createGlobalStyle`
   }
 
   .btn {
-    color: ${({ theme }) => theme.successColor};
     background-color: ${({ theme }) => theme.bgcBtn};
+    border-width: 2px;
   }
 
   .btn-success {
+    color: ${({ theme }) => theme.successColor};
     border-color: ${({ theme }) => theme.successColor};
-    border-width: 2px;
   }
 
   .btn-success:hover{
     background-color: ${({ theme }) => theme.successColor};
+  }
+
+  .btn-secondary {
+    color: ${({ theme }) => theme.primaryColor};
+    border: ${({ theme }) => theme.primaryBorder};
+  }
+
+  .btn-secondary:hover{
+    color: ${({ theme }) => theme.primaryColor};
+    background-color: ${({ theme }) => theme.primaryBgc};
+    border-color: ${({ theme }) => theme.primaryColor};
+  }
+
+  .card {
+    background-color: ${({ theme }) => theme.primaryBgc};
   }
 `;

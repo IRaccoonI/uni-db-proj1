@@ -102,10 +102,6 @@ function CreatePost(): ReactElement {
   );
 }
 
-const CreatePostStyled = styled.div`
-  .card {
-    background-color: ${({ theme }) => theme.primaryBgc};
-  }
-`;
+const CreatePostStyled = styled.div``;
 
 export default CreatePost;
