@@ -207,6 +207,74 @@ export const postsManageVrrdict = createAsyncThunk(
   },
 );
 
+export const postsLike = createAsyncThunk(
+  'posts/like',
+  async (
+    post: {
+      likeValue: 1 | -1;
+      postId: number;
+    },
+    api,
+  ) => {
+    try {
+      const response = await taxios.post(
+        '/posts/{id}/like',
+        {
+          value: post.likeValue,
+        },
+        {
+          params: {
+            id: post.postId,
+          },
+          axios: {
+            headers: {
+              authorization: 'Bearer ' + store.getState().auth.jwt,
+            },
+          },
+        },
+      );
+      return response.data;
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
+
+export const postsView = createAsyncThunk(
+  'posts/view',
+  async (
+    post: {
+      postId: number;
+    },
+    api,
+  ) => {
+    try {
+      const response = await taxios.post(
+        '/posts/{id}/incrementView',
+        undefined,
+        {
+          params: {
+            id: post.postId,
+          },
+          axios: {
+            headers: {
+              authorization: 'Bearer ' + store.getState().auth.jwt,
+            },
+          },
+        },
+      );
+      return response.data;
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
 // Slice
 
 const postsSlice = createSlice({
@@ -243,18 +311,38 @@ const postsSlice = createSlice({
       .addCase(postsGetView.rejected, (state: PostState) => {
         state.status = 'idle';
       });
-    builder
-      // .addCase(postsManageVrrdict.pending, (state: PostState) => {
-      //   state.status = 'loading';
-      // })
-      .addCase(postsManageVrrdict.fulfilled, (state: PostState, action) => {
+    builder.addCase(
+      postsManageVrrdict.fulfilled,
+      (state: PostState, action) => {
         state.postsManage = state.postsManage?.filter(
           (p) => p.id !== action.payload,
         );
-      });
-    // .addCase(postsManageVrrdict.rejected, (state: PostState) => {
-    //   state.status = 'idle';
-    // });
+      },
+    );
+    builder.addCase(postsLike.fulfilled, (state: PostState, action) => {
+      const postInd =
+        state.postsView?.reduce(
+          (p, n, i) => (n.id !== action.meta.arg.postId ? p : i),
+          -1,
+        ) ?? -1;
+      if (postInd === -1) return;
+      if (state.postsView !== undefined) {
+        state.postsView[postInd].likesSum = action.payload.currentSumLikes;
+        state.postsView[postInd].selfLikeValue =
+          action.payload.currentSelfLikeValue;
+      }
+    });
+    builder.addCase(postsView.fulfilled, (state: PostState, action) => {
+      const postInd =
+        state.postsView?.reduce(
+          (p, n, i) => (n.id !== action.meta.arg.postId ? p : i),
+          -1,
+        ) ?? -1;
+      if (postInd === -1) return;
+      if (state.postsView !== undefined) {
+        state.postsView[postInd].viewsCount = action.payload.currentViewsCount;
+      }
+    });
   },
 });
 

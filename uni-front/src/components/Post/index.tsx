@@ -59,9 +59,7 @@ function Post(prop: PostProp): ReactElement {
 
   useInterval(() => {
     setMinutesPass(correctStrDate(prop.updatedAt));
-    // eslint-disable-next-line no-console
-    console.log(prop.viewsCount);
-  }, 500);
+  }, 1000);
   return (
     <div className="post">
       <PostStyled>

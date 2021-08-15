@@ -1,10 +1,10 @@
-import { ReactElement, useCallback } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'redux/store';
 
 import styled from 'styled-components';
 import Post, { PostProp } from './index';
-import { postsManageVrrdict } from 'redux/slices/posts';
+import { postsLike, postsView } from 'redux/slices/posts';
 import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
 
 export interface PostViewProp extends PostProp {
@@ -14,32 +14,50 @@ export interface PostViewProp extends PostProp {
 }
 
 function ViewPost(prop: PostViewProp): ReactElement {
-  // const [viewed, setViewed] = useState(false);
+  const [viewed, setViewed] = useState(false);
   const dispatch: AppDispatch = useDispatch();
 
-  const verdictCb = useCallback(
-    async (result: 'ok' | 'ne-ok', reason?: string) => {
-      dispatch(
-        postsManageVrrdict({
-          id: prop.id,
-          verdict: {
-            result: result,
-            reason: reason,
-          },
-        }),
-      );
+  const likeCb = useCallback(
+    (likeValue: 1 | -1) => {
+      if (likeValue === prop.selfLikeValue) return;
+      dispatch(postsLike({ likeValue: likeValue, postId: prop.id }));
     },
     [prop, dispatch],
   );
 
+  const viewCb = useCallback(() => {
+    if (viewed) return;
+    setViewed(true);
+    dispatch(postsView({ postId: prop.id }));
+  }, [prop, viewed, dispatch]);
+
   return (
     <ViewPostStyled>
-      <div className={'d-flex flex-row ' + prop.className || ''}>
+      <div
+        className={'d-flex flex-row ' + prop.className || ''}
+        onMouseEnter={viewCb}
+      >
         <div className="lc">
-          <div className="btn-wrapper ok" onClick={() => verdictCb('ok')}>
+          <div
+            className={
+              'btn-wrapper ok ' + (prop.selfLikeValue === 1 ? 'active' : '')
+            }
+            onClick={() => likeCb(1)}
+          >
             <ChevronUp />
           </div>
-          <div className="btn-wrapper ne-ok">
+          <div className="likesSum">
+            <span>
+              {prop.likesSum > 0 ? '+' : ''}
+              {prop.likesSum}
+            </span>
+          </div>
+          <div
+            className={
+              'btn-wrapper ne-ok ' + (prop.selfLikeValue === -1 ? 'active' : '')
+            }
+            onClick={() => likeCb(-1)}
+          >
             <ChevronDown />
           </div>
         </div>
@@ -57,19 +75,27 @@ const ViewPostStyled = styled.div`
     font-size: 2em;
   }
 
+  .lc > * {
+    text-align: center;
+  }
+
+  .lc > .btn-wrapper > svg {
+    vertical-align: baseline;
+  }
+
   .lc > .btn-wrapper {
     height: 40px;
     width: 70px;
-    text-align: center;
-    vertical-align: middle;
   }
 
-  .lc > .btn-wrapper.ok:hover {
+  .lc > .btn-wrapper.ok:hover,
+  .lc > .btn-wrapper.ok.active {
     background-color: ${({ theme }) => theme.successBgc};
     color: ${({ theme }) => theme.successColor};
   }
 
-  .lc > .btn-wrapper.ne-ok:hover {
+  .lc > .btn-wrapper.ne-ok:hover,
+  .lc > .btn-wrapper.ne-ok.active {
     background-color: ${({ theme }) => theme.errorBgc};
     color: ${({ theme }) => theme.errorColor};
   }
