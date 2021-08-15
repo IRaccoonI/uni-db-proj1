@@ -195,8 +195,7 @@ export default function registerRoute(router: Router) {
       currentSelfLikeValue = ctx.request.body.value;
     } else if (prevLike.value === ctx.request.body.value) {
       await PostsLikes.destroy({
-        where: {},
-        truncate: true,
+        where: { postId: postId, userId: ctx.state.userModel.id },
       });
       currentSelfLikeValue = 0;
     } else {
@@ -205,7 +204,7 @@ export default function registerRoute(router: Router) {
           value: ctx.request.body.value,
         },
         {
-          where: {},
+          where: { postId: postId, userId: ctx.state.userModel.id },
         },
       );
       currentSelfLikeValue = ctx.request.body.value;
