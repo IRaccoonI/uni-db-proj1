@@ -17,7 +17,7 @@ export default function registerRoute(router: Router) {
   }
   router.post('/', joiValidatePostPostLike, jwtWithSetUserModel, async (ctx: PostPostLikeCtx) => {
     const postId: number = parseInt(ctx.params.id);
-    if (postId == null) {
+    if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');
     }
 
@@ -64,7 +64,7 @@ export default function registerRoute(router: Router) {
       },
     });
 
-    ctx.status = 200;
+    ctx.status = 201;
     ctx.type = 'json';
     ctx.body = {
       currentSumLikes: isNaN(currentSumLikes) ? 0 : currentSumLikes,

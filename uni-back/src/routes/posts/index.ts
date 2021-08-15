@@ -44,12 +44,13 @@ export default function registerRoute(router: Router) {
       delete curJson.likes;
       delete curJson.verification;
       delete curJson.lastVerification;
+      delete curJson.comments;
 
       curJson['likesSum'] = post.likes.reduce((p, c) => p + c.value, 0);
       let selfLike = post.likes.filter((like) => like.userId == ctx.state.userModel.id);
       curJson['selfLikeValue'] = selfLike.length == 0 ? 0 : selfLike[0].value;
 
-      curJson['commentsCount'] = 228;
+      curJson['commentsCount'] = post.comments.length;
 
       res.push(curJson);
     });
@@ -82,7 +83,7 @@ export default function registerRoute(router: Router) {
       });
     }
 
-    ctx.status = 200;
+    ctx.status = 201;
     ctx.type = 'json';
     ctx.body = {
       id: newPost.id,

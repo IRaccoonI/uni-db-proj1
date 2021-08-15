@@ -17,6 +17,7 @@ const user = {
   password: Joi.string().min(3).max(30),
   roleName: Joi.number().min(1).max(3),
 };
+
 // call on validation error
 function errorCallback(ctx: Context, error: Joi.ValidationError) {
   ctx.throw(400, error.message);

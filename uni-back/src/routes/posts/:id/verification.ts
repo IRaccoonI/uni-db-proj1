@@ -15,7 +15,7 @@ export default function registerRoute(router: Router) {
   }
   router.patch('/', joiValidatePostPatchVerificataion, jwtWithSetUserModel, async (ctx: PostsPatchValideteCtx) => {
     const postId: number = parseInt(ctx.params.id);
-    if (postId == null) {
+    if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');
     }
 

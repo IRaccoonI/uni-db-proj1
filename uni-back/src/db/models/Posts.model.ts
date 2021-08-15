@@ -21,6 +21,7 @@ import Users from './Users.model';
 import PostsLikes from './PostsLikes.model';
 import PostsVerifications from './PostsVerifications.model';
 import { Sequelize } from 'sequelize';
+import Comments from './Comments.model';
 
 @Scopes(() => ({
   manageList: {
@@ -53,6 +54,31 @@ import { Sequelize } from 'sequelize';
         model: PostsLikes,
         attributes: ['userId', 'value'],
       },
+      {
+        model: Comments,
+        attributes: ['id'],
+      },
+    ],
+  },
+  detail: {
+    attributes: ['id', 'title', 'content', 'updatedAt', 'lastVerification', 'viewsCount'],
+    include: [
+      {
+        model: PostsVerifications,
+        attributes: ['id', 'result', 'reason'],
+        order: [['id', 'DESC']],
+      },
+      {
+        model: Users,
+        attributes: ['id', 'login'],
+      },
+      {
+        model: PostsLikes,
+        attributes: ['userId', 'value'],
+      },
+      {
+        model: Comments,
+      },
     ],
   },
 }))
@@ -81,6 +107,9 @@ export default class Posts extends Model {
 
   @HasMany(() => PostsLikes)
   likes: PostsLikes[];
+
+  @HasMany(() => Comments)
+  comments: Comments[];
 
   @Column(DataType.INTEGER)
   viewsCount: number;

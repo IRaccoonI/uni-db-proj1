@@ -14,7 +14,7 @@ export default function registerRoute(router: Router) {
   }
   router.post('/', jwtWithSetUserModel, async (ctx: PostPostIncrementView) => {
     const postId: number = parseInt(ctx.params.id);
-    if (postId == null) {
+    if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');
     }
 
@@ -30,7 +30,7 @@ export default function registerRoute(router: Router) {
 
     await curPost.increment('viewsCount', { silent: true });
 
-    ctx.status = 200;
+    ctx.status = 201;
     ctx.type = 'json';
     ctx.body = {
       currentViewsCount: curPost.viewsCount,
