@@ -15,12 +15,10 @@ export type PostManage = {
     login: string;
   };
   updatedAt: string;
-  commentsCount: number;
-  likesSum: number;
   latsVerification: {
     id: number;
     result: boolean;
-    reson: string;
+    reason: string;
   } | null;
 };
 

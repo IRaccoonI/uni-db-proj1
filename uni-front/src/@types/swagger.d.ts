@@ -4,14 +4,13 @@ declare global {
      * object with detail of error
      */
     export interface ErrorResponse {
-      status?: number;
+      status: number;
       /**
        * error detail
        */
-      message?: string;
-      success?: boolean;
-      reason?: string;
-      [k: string]: unknown;
+      message: string;
+      success: boolean;
+      reason: string;
     }
     /**
      * User date to authorizate
@@ -19,57 +18,42 @@ declare global {
     export interface UserAuthorization {
       login: string;
       password: string;
-      [k: string]: unknown;
     }
     export interface PostGetManage {
-      id?: number;
-      title: string;
-      content: string;
-      owner: {
-        id: number;
-        login: string;
-      };
-      updatedAt: string;
-      latsVerification: {
-        id: number;
-        result: boolean;
-        reson: string;
-      };
-    }
-    export interface PostGetView {
-      id?: number;
-      title: string;
-      content: string;
-      owner: {
-        id: number;
-        login: string;
-        [k: string]: unknown;
-      };
-      updatedAt: string;
-      latsVerification: {
-        id: number;
-        result: boolean;
-        reson: string;
-        [k: string]: unknown;
-      };
-      likesSum: number;
-      commentsCount: number;
-      viewsCount?: number;
-      [k: string]: unknown;
-    }
-    export interface PostGetDetail {
       id: number;
       title: string;
       content: string;
-      owner: {
-        id: number;
-        login: string;
-        [k: string]: unknown;
-      };
-      createdAt: number;
+      owner: Swagger.Owner;
+      updatedAt: string;
+      latsVerification: Swagger.LastVerification;
+    }
+    export interface PostGetView {
+      id: number;
+      title: string;
+      content: string;
+      owner: Swagger.Owner;
+      updatedAt: string;
+      latsVerification: Swagger.LastVerification;
+      likesSum: number;
       commentsCount: number;
-      likesCount: number;
-      [k: string]: unknown;
+      viewsCount: number;
+    }
+    export interface CommentsGet {
+      id: number;
+      postId: number;
+      owner: Swagger.Owner;
+      parnetCommentId: number;
+      content: string;
+      updatedAt: string;
+    }
+    export interface Owner {
+      id: number;
+      login: string;
+    }
+    export interface LastVerification {
+      id: number;
+      result: boolean;
+      reason: string;
     }
   }
 
@@ -84,7 +68,6 @@ declare global {
              * jwt token
              */
             token: string;
-            [k: string]: unknown;
           };
         };
       };
@@ -100,11 +83,9 @@ declare global {
             title: string;
             content: string;
             withoutVerification?: boolean;
-            [k: string]: unknown;
           };
           response: {
             id: number;
-            [k: string]: unknown;
           };
         };
       };
@@ -116,12 +97,21 @@ declare global {
           response: Swagger.PostGetManage[];
         };
       };
-      '/posts/{id}': {
+      '/posts/{id}/comments': {
         GET: {
           params: {
             id: number;
           };
-          response: Swagger.PostGetDetail;
+          response: Swagger.CommentsGet[];
+        };
+        POST: {
+          body?: {
+            content?: string;
+            parentCommentId?: number;
+          };
+          params: {
+            id: number;
+          };
         };
       };
       '/posts/{id}/verification': {
@@ -129,7 +119,6 @@ declare global {
           body?: {
             result: boolean;
             reason?: string;
-            [k: string]: unknown;
           };
           params: {
             id: number;
@@ -140,7 +129,6 @@ declare global {
         POST: {
           body?: {
             value: -1 | 1;
-            [k: string]: unknown;
           };
           params: {
             id: number;
@@ -148,7 +136,6 @@ declare global {
           response: {
             currentSelfLikeValue: number;
             currentSumLikes: number;
-            [k: string]: unknown;
           };
         };
       };
@@ -159,7 +146,22 @@ declare global {
           };
           response: {
             currentViewsCount: number;
-            [k: string]: unknown;
+          };
+        };
+      };
+      '/comments/{id}/childs': {
+        GET: {
+          params: {
+            id: number;
+          };
+          response: Swagger.CommentsGet[];
+        };
+        POST: {
+          body?: {
+            content: string;
+          };
+          params: {
+            id: number;
           };
         };
       };
@@ -167,11 +169,11 @@ declare global {
         GET: {
           response: {
             roleName: string;
-            [k: string]: unknown;
           }[];
         };
       };
     };
   }
 }
+
 export {};
