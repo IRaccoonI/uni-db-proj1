@@ -28,7 +28,7 @@ export default function registerRoute(router: Router) {
   router.get('/manage', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsManageGetCtx) => {
     const verificationResult = (ctx.request.query as PostsGetQueryType).verificationResult;
 
-    if (verificationResult && ctx.state.userModel.roleName != 'admin') {
+    if (ctx.state.userModel.roleName != 'admin') {
       ctx.throw(403, 'You cannot manage new posts');
     }
 
@@ -63,7 +63,7 @@ export default function registerRoute(router: Router) {
   router.get('/', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsGetCtx) => {
     const verificationResult = (ctx.request.query as PostsGetQueryType).verificationResult;
 
-    if (verificationResult && ctx.state.userModel.roleName != 'admin') {
+    if ((verificationResult == 'false' || verificationResult == 'null') && ctx.state.userModel.roleName != 'admin') {
       ctx.throw(403, 'You cannot manage new posts');
     }
 
