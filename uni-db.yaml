@@ -15,12 +15,13 @@ tags:
   - name: authorization
   - name: const
   - name: posts
+  - name: comments
 paths:
   /authorization/login:
     post:
-      operationId: post-authorization-login
-      description: test
       summary: Login as user with get jwt token
+      description: 'get user''s jwt token '
+      operationId: post-authorization-login
       tags:
         - authorization
       requestBody:
@@ -52,8 +53,9 @@ paths:
           $ref: '#/components/responses/BadRequestError'
   /posts:
     get:
-      summary: Your GET endpoint
+      summary: Get posts list for view
       description: get posts for view
+      operationId: get-posts
       tags:
         - posts
       responses:
@@ -71,7 +73,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-      operationId: get-posts
       parameters:
         - schema:
             type: string
@@ -85,9 +86,9 @@ paths:
       security:
         - BearerAuth: []
     post:
-      summary: ''
-      operationId: post-posts
+      summary: Post new post
       description: post new post
+      operationId: post-posts
       tags:
         - posts
       responses:
@@ -129,8 +130,9 @@ paths:
         - BearerAuth: []
   /posts/manage:
     get:
-      summary: Your GET endpoint
+      summary: Get posts list for manage
       description: get posts for manage
+      operationId: get-posts-manage
       tags:
         - posts
       responses:
@@ -148,7 +150,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-      operationId: get-posts-manage
       parameters:
         - schema:
             type: string
@@ -161,7 +162,7 @@ paths:
           name: verificationResult
       security:
         - BearerAuth: []
-  '/posts/{id}':
+  '/posts/{id}/comments':
     parameters:
       - schema:
           type: number
@@ -171,9 +172,11 @@ paths:
         required: true
         description: post id
     get:
+      summary: Get comments list of post
       description: get post by id
-      summary: Your GET endpoint
+      operationId: get-posts-coments
       tags:
+        - comments
         - posts
       responses:
         '200':
@@ -181,7 +184,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostGetDetail'
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentsGet'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -190,9 +195,40 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-      operationId: get-posts-id
       security:
         - BearerAuth: []
+    post:
+      summary: Post new comment for post
+      description: Post new comment for post
+      operationId: post-posts-id-comments
+      tags:
+        - comments
+        - posts
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentid:
+                    type: number
+                required:
+                  - commentid
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                parentCommentId:
+                  type: number
+                  nullable: true
   '/posts/{id}/verification':
     parameters:
       - schema:
@@ -204,7 +240,8 @@ paths:
         description: post id
     patch:
       description: set verification result for post
-      summary: Your GET endpoint
+      operationId: get-posts-id-validated
+      summary: Verdict for post
       tags:
         - posts
       responses:
@@ -218,7 +255,6 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-      operationId: get-posts-id-validated
       requestBody:
         content:
           application/json:
@@ -243,8 +279,11 @@ paths:
         required: true
         description: post id
     post:
-      summary: ''
+      summary: Set like for post
+      description: new or toggle/replace old like for post
       operationId: post-posts-id-like
+      tags:
+        - posts
       responses:
         '200':
           description: OK
@@ -268,9 +307,6 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-      tags:
-        - posts
-      description: new or toggle/replace old like for post
       requestBody:
         content:
           application/json:
@@ -296,8 +332,11 @@ paths:
         required: true
         description: post id
     post:
-      summary: ''
+      summary: Increment view for post
+      description: new or toggle/replace old like for post
       operationId: post-posts-id-increment-veiw
+      tags:
+        - posts
       responses:
         '200':
           description: OK
@@ -318,11 +357,81 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-      tags:
-        - posts
-      description: new or toggle/replace old like for post
       security:
         - BearerAuth: []
+  '/comments/{id}/childs':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: comment id
+    get:
+      description: get post by id
+      summary: Get child comments for comment
+      operationId: get-comments-id-dchilds
+      tags:
+        - comments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentsGet'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        - BearerAuth: []
+    post:
+      summary: Post new comment for post
+      description: Post new comment for post
+      operationId: post-comments-id-childs
+      tags:
+        - comments
+        - posts
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentid:
+                    type: number
+                required:
+                  - commentid
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
   /roles:
     get:
       summary: Get list of all users roles
@@ -391,6 +500,11 @@ components:
           type: boolean
         reason:
           type: string
+      required:
+        - status
+        - message
+        - success
+        - reason
     UserAuthorization:
       title: UserAutrorization
       type: object
@@ -418,31 +532,11 @@ components:
         content:
           type: string
         owner:
-          type: object
-          required:
-            - id
-            - login
-          properties:
-            id:
-              type: number
-            login:
-              type: string
+          $ref: '#/components/schemas/Owner'
         updatedAt:
           type: string
         latsVerification:
-          type: object
-          required:
-            - id
-            - result
-            - reson
-          nullable: true
-          properties:
-            id:
-              type: number
-            result:
-              type: boolean
-            reson:
-              type: string
+          $ref: '#/components/schemas/LastVerification'
       required:
         - id
         - title
@@ -461,31 +555,11 @@ components:
         content:
           type: string
         owner:
-          type: object
-          required:
-            - id
-            - login
-          properties:
-            id:
-              type: number
-            login:
-              type: string
+          $ref: '#/components/schemas/Owner'
         updatedAt:
           type: string
         latsVerification:
-          type: object
-          required:
-            - id
-            - result
-            - reson
-          nullable: true
-          properties:
-            id:
-              type: number
-            result:
-              type: boolean
-            reson:
-              type: string
+          $ref: '#/components/schemas/LastVerification'
         likesSum:
           type: number
         commentsCount:
@@ -501,37 +575,54 @@ components:
         - latsVerification
         - likesSum
         - commentsCount
-    PostGetDetail:
-      title: PostGetDetail
+        - viewsCount
+    CommentsGet:
+      title: CommentsGet
       type: object
       properties:
         id:
           type: number
-        title:
-          type: string
+        postId:
+          type: number
+        owner:
+          $ref: '#/components/schemas/Owner'
+        parnetCommentId:
+          type: number
+          nullable: true
         content:
           type: string
-        owner:
-          type: object
-          required:
-            - id
-            - login
-          properties:
-            id:
-              type: number
-            login:
-              type: string
-        createdAt:
-          type: number
-        commentsCount:
-          type: number
-        likesCount:
-          type: number
+        updatedAt:
+          type: string
       required:
         - id
-        - title
-        - content
+        - postId
         - owner
-        - createdAt
-        - commentsCount
-        - likesCount
+        - parnetCommentId
+        - content
+        - updatedAt
+    Owner:
+      title: Owner
+      type: object
+      properties:
+        id:
+          type: number
+        login:
+          type: string
+      required:
+        - id
+        - login
+    LastVerification:
+      title: LastVerification
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: number
+        result:
+          type: boolean
+        reason:
+          type: string
+      required:
+        - id
+        - result
+        - reason
