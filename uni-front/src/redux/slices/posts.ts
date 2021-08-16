@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 import { Taxios } from '@simplesmiler/taxios';
 import Axios from 'axios';
@@ -29,10 +29,24 @@ export type PostView = PostManage & {
   selfLikeValue: number;
 };
 
+export type Comment = {
+  id: number;
+  postId: number;
+  content: string;
+  updatedAt: string;
+  parentCommentId: number | null;
+  owner: {
+    id: number;
+    login: string;
+  };
+  childsCommentsCount: number;
+};
+
 export type PostState = {
   status: string;
-  postsManage?: PostManage[];
-  postsView?: PostView[];
+  postsManage: PostManage[];
+  postsView: PostView[];
+  comments: Comment[];
 };
 
 // Init state
@@ -41,6 +55,7 @@ const initialState: PostState = {
   status: 'idle',
   postsManage: [],
   postsView: [],
+  comments: [],
 };
 
 // Thunk functions
@@ -273,6 +288,93 @@ export const postsView = createAsyncThunk(
     }
   },
 );
+
+export const postsCommentPost = createAsyncThunk(
+  'posts/comments/post',
+  async (
+    comment: {
+      postId: number;
+      content: string;
+      parentCommentId: number | undefined;
+    },
+    api,
+  ) => {
+    comment;
+    api;
+    try {
+      const response = await taxios.post(
+        '/posts/{id}/comments',
+        {
+          content: comment.content,
+          parentCommentId: comment.parentCommentId,
+        },
+        {
+          params: {
+            id: comment.postId,
+          },
+          axios: {
+            headers: {
+              authorization: 'Bearer ' + store.getState().auth.jwt,
+            },
+          },
+        },
+      );
+      return response.data;
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
+
+export const uploadPostComments = createAsyncThunk(
+  'posts/comments/upload',
+  async (
+    comments: {
+      postId?: number;
+      parentCommentId?: number;
+    } & object,
+    api,
+  ) => {
+    comments;
+    api;
+    try {
+      if (comments.postId !== undefined) {
+        let response = await taxios.get('/posts/{id}/comments', {
+          params: {
+            id: comments.postId,
+          },
+          axios: {
+            headers: {
+              authorization: 'Bearer ' + store.getState().auth.jwt,
+            },
+          },
+        });
+        return response.data;
+      } else {
+        let response = await taxios.get('/comments/{id}/childs', {
+          params: {
+            id: comments.parentCommentId ?? -1,
+          },
+          axios: {
+            headers: {
+              authorization: 'Bearer ' + store.getState().auth.jwt,
+            },
+          },
+        });
+        return response.data;
+      }
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
+
 // Slice
 
 const postsSlice = createSlice({
@@ -284,6 +386,17 @@ const postsSlice = createSlice({
     },
     postsViewClear(state: PostState) {
       state.postsView = [];
+    },
+    commentsClearByPostId(state: PostState, action: PayloadAction<number>) {
+      state.comments = state.comments.filter(
+        (c) => c.postId !== action.payload,
+      );
+    },
+    commentsClearByParentCommentId(
+      state: PostState,
+      action: PayloadAction<number>,
+    ) {
+      state.comments = state.comments.filter((c) => c.id !== action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -312,14 +425,14 @@ const postsSlice = createSlice({
     builder.addCase(
       postsManageVrrdict.fulfilled,
       (state: PostState, action) => {
-        state.postsManage = state.postsManage?.filter(
+        state.postsManage = state.postsManage.filter(
           (p) => p.id !== action.payload,
         );
       },
     );
     builder.addCase(postsLike.fulfilled, (state: PostState, action) => {
       const postInd =
-        state.postsView?.reduce(
+        state.postsView.reduce(
           (p, n, i) => (n.id !== action.meta.arg.postId ? p : i),
           -1,
         ) ?? -1;
@@ -332,7 +445,7 @@ const postsSlice = createSlice({
     });
     builder.addCase(postsView.fulfilled, (state: PostState, action) => {
       const postInd =
-        state.postsView?.reduce(
+        state.postsView.reduce(
           (p, n, i) => (n.id !== action.meta.arg.postId ? p : i),
           -1,
         ) ?? -1;
@@ -341,9 +454,57 @@ const postsSlice = createSlice({
         state.postsView[postInd].viewsCount = action.payload.currentViewsCount;
       }
     });
+
+    builder.addCase(postsCommentPost.fulfilled, (state: PostState, action) => {
+      const postInd =
+        state.postsView.reduce(
+          (p, n, i) => (n.id !== action.payload.postId ? p : i),
+          -1,
+        ) ?? -1;
+      if (postInd !== -1) {
+        state.postsView[postInd].commentsCount += 1;
+      }
+      const commentInd =
+        state.comments.reduce(
+          (p, n, i) => (n.id !== action.payload.parentCommentId ? p : i),
+          -1,
+        ) ?? -1;
+      // eslint-disable-next-line no-console
+      console.log(state.comments.map((c) => c.id));
+
+      // eslint-disable-next-line no-console
+      console.log(action.payload.id);
+      // eslint-disable-next-line no-console
+      console.log(action.payload.parentCommentId);
+      if (commentInd !== -1) {
+        state.comments[commentInd].childsCommentsCount += 1;
+      }
+      state.comments.push(action.payload);
+    });
+
+    builder.addCase(
+      uploadPostComments.fulfilled,
+      (state: PostState, action) => {
+        action.payload.forEach((c) => {
+          if (
+            !state.comments.reduce(
+              (prev, cur) => prev || cur.id === c.id,
+              false,
+            )
+          ) {
+            state.comments.push(c);
+          }
+        });
+      },
+    );
   },
 });
 
-export const { postsManageClear, postsViewClear } = postsSlice.actions;
+export const {
+  postsManageClear,
+  postsViewClear,
+  commentsClearByPostId,
+  commentsClearByParentCommentId,
+} = postsSlice.actions;
 
 export default postsSlice.reducer;

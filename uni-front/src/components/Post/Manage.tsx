@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'redux/store';
 
@@ -10,13 +10,20 @@ import { postsManageVrrdict } from 'redux/slices/posts';
 import SimpleInputForm from '../SimpleInputForm';
 
 export interface PostManageProp
-  extends Omit<PostProp, 'commentsCount' | 'viewsCount'> {
+  extends Omit<
+    PostProp,
+    'commentsCount' | 'viewsCount' | 'clickCommentIcoCb' | 'clickNewCommentCb'
+  > {
   className?: string;
 }
 
 function ManagePost(prop: PostManageProp): ReactElement {
   const [showSimpleInput, setShowSimpleInput] = useState(false);
   const dispatch: AppDispatch = useDispatch();
+
+  useEffect(() => {
+    setShowSimpleInput(false);
+  }, [prop.id]);
 
   const verdictCb = useCallback(
     async (result: 'ok' | 'ne-ok', reason?: string) => {
@@ -52,10 +59,7 @@ function ManagePost(prop: PostManageProp): ReactElement {
           {!showSimpleInput ? null : (
             <SimpleInputForm
               placeholderText="Enter Reason..."
-              submitCd={(text) => {
-                verdictCb('ne-ok', text);
-                setShowSimpleInput(false);
-              }}
+              submitCd={(text) => verdictCb('ne-ok', text)}
               className="mt-2"
             />
           )}

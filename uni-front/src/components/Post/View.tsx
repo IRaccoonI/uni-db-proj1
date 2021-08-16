@@ -1,21 +1,38 @@
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'redux/store';
 
 import styled from 'styled-components';
 import Post, { PostProp } from './index';
-import { postsLike, postsView } from 'redux/slices/posts';
+import {
+  postsCommentPost,
+  postsLike,
+  postsView,
+  uploadPostComments,
+} from 'redux/slices/posts';
 import { ChevronDown, ChevronUp } from 'react-bootstrap-icons';
+import SimpleImpotForm from 'components/SimpleInputForm';
+import { Card } from 'react-bootstrap';
+import CommentsList from './CommentsList';
 
-export interface PostViewProp extends PostProp {
+export interface PostViewProp
+  extends Omit<PostProp, 'clickCommentIcoCb' | 'clickNewCommentCb'> {
   likesSum: number;
   selfLikeValue: number;
   className?: string;
 }
 
 function ViewPost(prop: PostViewProp): ReactElement {
-  const [viewed, setViewed] = useState(false);
   const dispatch: AppDispatch = useDispatch();
+
+  const [viewed, setViewed] = useState(false);
+  const [showNewComment, setShowNewComment] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+
+  useEffect(() => {
+    setShowNewComment(false);
+    setShowComments(false);
+  }, [prop.id]);
 
   const likeCb = useCallback(
     (likeValue: 1 | -1) => {
@@ -29,6 +46,25 @@ function ViewPost(prop: PostViewProp): ReactElement {
     setViewed(true);
     dispatch(postsView({ postId: prop.id }));
   }, [prop, viewed, dispatch]);
+
+  const newCommentCb = useCallback(
+    async (text) => {
+      dispatch(
+        postsCommentPost({
+          content: text,
+          postId: prop.id,
+          parentCommentId: undefined,
+        }),
+      );
+      setShowNewComment(false);
+    },
+    [dispatch, prop.id],
+  );
+
+  const showCommentsCb = useCallback(() => {
+    setShowComments((prev) => !prev);
+    dispatch(uploadPostComments({ postId: prop.id }));
+  }, [prop.id, dispatch]);
 
   return (
     <ViewPostStyled>
@@ -61,7 +97,23 @@ function ViewPost(prop: PostViewProp): ReactElement {
           </div>
         </div>
         <div className="flex-grow-1 rc">
-          <Post {...prop} />
+          <Post
+            {...prop}
+            clickNewCommentCb={() => setShowNewComment((prev) => !prev)}
+            clickCommentIcoCb={showCommentsCb}
+          />
+          {!showNewComment ? null : (
+            <SimpleImpotForm
+              placeholderText="Enter your comment"
+              submitCd={(text) => newCommentCb(text)}
+              className="mt-2"
+            />
+          )}
+          {!showComments ? null : (
+            <Card className="mt-2 px-3 py-2">
+              <CommentsList postId={prop.id} />
+            </Card>
+          )}
         </div>
       </div>
     </ViewPostStyled>
