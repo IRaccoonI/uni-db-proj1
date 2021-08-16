@@ -577,7 +577,7 @@ components:
           type: number
         owner:
           $ref: '#/components/schemas/Owner'
-        parnetCommentId:
+        parentCommentId:
           type: number
           nullable: true
         content:
@@ -590,7 +590,7 @@ components:
         - id
         - postId
         - owner
-        - parnetCommentId
+        - parentCommentId
         - content
         - updatedAt
         - childsCommentsCount

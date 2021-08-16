@@ -42,7 +42,7 @@ declare global {
       id: number;
       postId: number;
       owner: Swagger.Owner;
-      parnetCommentId: number;
+      parentCommentId: number;
       content: string;
       updatedAt: string;
       childsCommentsCount: number;
