@@ -14,7 +14,7 @@ function SimpleImpotForm(prop: SimpleIMpotFormProp): ReactElement {
 
   return (
     <div className={prop.className ?? ''}>
-      <SimpleIMpotFormStyled>
+      <SimpleImpotFormStyled>
         <Card className="rounded-start-0">
           <div className="post-header px-3 py-2">
             <Form>
@@ -37,12 +37,12 @@ function SimpleImpotForm(prop: SimpleIMpotFormProp): ReactElement {
             </Form>
           </div>
         </Card>
-      </SimpleIMpotFormStyled>
+      </SimpleImpotFormStyled>
     </div>
   );
 }
 
-const SimpleIMpotFormStyled = styled.div`
+const SimpleImpotFormStyled = styled.div`
   .card {
     background-color: ${({ theme }) => theme.primaryBgc};
     border: ${({ theme }) => theme.primaryBorder};

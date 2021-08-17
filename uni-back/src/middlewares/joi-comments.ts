@@ -29,14 +29,23 @@ export interface ICommentsPostReq extends Request {
   body?: CommentsPostType['body'];
 }
 
-const commentsChildsPost = {
+const commentsChildsDelete = {
   body: Joi.object({
-    content: comment.content.required(),
+    reason: Joi.string().required(),
   }).required(),
 };
 
-export const joiValidateCommentsChildsPost = validateMiddleware.create(commentsChildsPost, errorCallback);
-type CommentsChildsPostType = Joi.extractType<typeof commentsChildsPost>;
-export interface ICommentsChildsPostReq extends Request {
-  body?: CommentsChildsPostType['body'];
+export const joiValidateCommentsChildsDelete = validateMiddleware.create(commentsChildsDelete, errorCallback);
+type CommentsChildsDeleteType = Joi.extractType<typeof commentsChildsDelete>;
+export interface ICommentsChildsDeleteReq extends Request {
+  body?: CommentsChildsDeleteType['body'];
 }
+
+const commentsDelete = {
+  query: {
+    reason: Joi.string().required(),
+  },
+};
+
+export const joiValidateCommentsDelete = validateMiddleware.create(commentsDelete, errorCallback);
+export type CommentsDeleteQueryType = Joi.extractType<typeof commentsDelete['query']>;

@@ -10,6 +10,9 @@ export interface ThemeType {
   successBgc: string;
   errorBgc: string;
   errorColor: string;
+  alertErrorBgc: string;
+  alertSuccessBgc: string;
+  alertInfoBgc: string;
 }
 
 export const lightTheme: ThemeType = {
@@ -24,4 +27,7 @@ export const lightTheme: ThemeType = {
   errorBgc: '#F4E8E8',
   hightlightColor: '#158C5C',
   secondColor: '#363636',
+  alertErrorBgc: '#F4E8E8',
+  alertInfoBgc: '#FFFFD7',
+  alertSuccessBgc: '#E8F4EF',
 };

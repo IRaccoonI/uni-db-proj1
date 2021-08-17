@@ -7,6 +7,7 @@ import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
 
 import Posts from '../../../db/models/Posts.model';
 import PostsVerifications from '../../../db/models/PostsVerifications.model';
+import Alerts from '../../../db/models/Alerts.model';
 
 export default function registerRoute(router: Router) {
   interface PostsPatchValideteCtx extends Context {
@@ -23,14 +24,27 @@ export default function registerRoute(router: Router) {
       ctx.throw(403, 'Forbidden for non admin');
     }
 
-    if ((await Posts.findOne({ where: { id: postId } })) == null) {
+    const curPost = await Posts.findByPk(postId);
+
+    if (curPost == null) {
       ctx.throw(404, 'Post not Found');
     }
 
-    await PostsVerifications.create({
+    const newPostVerification = await PostsVerifications.create({
       postId: postId,
       result: ctx.request.body.result,
       reason: ctx.request.body.reason,
+    });
+
+    const alertTitle = ctx.request.body.result ? 'Your post has been accepted' : 'Your post has been declined';
+    const alertLevel = ctx.request.body.result ? 'success' : 'error';
+
+    await Alerts.create({
+      title: alertTitle,
+      level: alertLevel,
+      userId: curPost.ownerId,
+      reason: ctx.request.body.reason,
+      postId: postId,
     });
 
     ctx.status = 200;

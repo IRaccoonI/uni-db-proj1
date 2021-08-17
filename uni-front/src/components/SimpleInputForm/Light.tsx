@@ -7,6 +7,7 @@ interface SimpleIMpotFormProp {
   placeholderText: string;
   submitCd: (text: string) => unknown;
   className?: string;
+  submitText?: string;
 }
 
 function SimpleImpotFormlight(prop: SimpleIMpotFormProp): ReactElement {
@@ -31,7 +32,7 @@ function SimpleImpotFormlight(prop: SimpleIMpotFormProp): ReactElement {
             className="w-100 rounded-0"
             onClick={() => prop.submitCd(text)}
           >
-            Send
+            {prop.submitText !== undefined ? prop.submitText : 'Send'}
           </Button>
         </Form>
       </SimpleIMpotFormStyled>

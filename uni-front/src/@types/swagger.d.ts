@@ -56,6 +56,30 @@ declare global {
       result: boolean;
       reason: string;
     }
+    export interface AlertsGet {
+      id: number;
+      level: 'error' | 'success' | 'info';
+      updatedAt: string;
+      title: string;
+      post: Swagger.PostAlertGet;
+      comment1: Swagger.CommentAlertGet;
+      comment2: Swagger.CommentAlertGet;
+      reason: string;
+    }
+    export interface PostAlertGet {
+      id: number;
+      title: string;
+      content: string;
+      owner: Swagger.Owner;
+      updatedAt: string;
+    }
+    export interface CommentAlertGet {
+      id: number;
+      owner: Swagger.Owner;
+      content: string;
+      title: string;
+      updatedAt: string;
+    }
   }
 
   export interface Swagger {
@@ -158,14 +182,30 @@ declare global {
           };
           response: Swagger.CommentsGet[];
         };
-        POST: {
-          body?: {
-            content: string;
-          };
+      };
+      '/comments/{id}': {
+        DELETE: {
           params: {
             id: number;
           };
-          response: Swagger.CommentsGet;
+          query: {
+            reason: string;
+          };
+        };
+      };
+      '/alerts': {
+        GET: {
+          response: Swagger.AlertsGet[];
+        };
+      };
+      '/alerts/{id}': {
+        PATCH: {
+          body?: {
+            viewed?: boolean;
+          };
+          params: {
+            id: string;
+          };
         };
       };
       '/roles': {

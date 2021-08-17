@@ -375,6 +375,39 @@ export const uploadPostComments = createAsyncThunk(
   },
 );
 
+export const postsDeleteComments = createAsyncThunk(
+  'posts/comments/delete',
+  async (
+    toDelete: {
+      commentId: number;
+      reason: string;
+    },
+    api,
+  ) => {
+    try {
+      let response = await taxios.delete('/comments/{id}', {
+        query: {
+          reason: toDelete.reason,
+        },
+        params: {
+          id: toDelete.commentId,
+        },
+        axios: {
+          headers: {
+            authorization: 'Bearer ' + store.getState().auth.jwt,
+          },
+        },
+      });
+      return response.data;
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
+
 // Slice
 
 const postsSlice = createSlice({
@@ -469,13 +502,6 @@ const postsSlice = createSlice({
           (p, n, i) => (n.id !== action.payload.parentCommentId ? p : i),
           -1,
         ) ?? -1;
-      // eslint-disable-next-line no-console
-      console.log(state.comments.map((c) => c.id));
-
-      // eslint-disable-next-line no-console
-      console.log(action.payload.id);
-      // eslint-disable-next-line no-console
-      console.log(action.payload.parentCommentId);
       if (commentInd !== -1) {
         state.comments[commentInd].childsCommentsCount += 1;
       }
@@ -495,6 +521,15 @@ const postsSlice = createSlice({
             state.comments.push(c);
           }
         });
+      },
+    );
+
+    builder.addCase(
+      postsDeleteComments.fulfilled,
+      (state: PostState, action) => {
+        state.comments = state.comments.filter(
+          (c) => c.id !== action.meta.arg.commentId,
+        );
       },
     );
   },

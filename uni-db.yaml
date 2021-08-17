@@ -16,6 +16,8 @@ tags:
   - name: const
   - name: posts
   - name: comments
+  - name: alerts
+  - name: errors
 paths:
   /authorization/login:
     post:
@@ -389,20 +391,24 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       security:
         - BearerAuth: []
-    post:
-      summary: Post new comment for post
-      description: Post new comment for post
-      operationId: post-comments-id-childs
+  '/comments/{id}':
+    parameters:
+      - schema:
+          type: number
+          minimum: 1
+        name: id
+        in: path
+        required: true
+        description: comment id
+    delete:
+      description: Delete comment by id
+      summary: Delete comment by id
+      operationId: delete-comments-id
       tags:
         - comments
-        - posts
       responses:
         '200':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CommentsGet'
+          description: OK
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':
@@ -413,16 +419,71 @@ paths:
           $ref: '#/components/responses/NotFoundError'
       security:
         - BearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: reason
+          required: true
+  /alerts:
+    get:
+      summary: Get all user's allert
+      description: Get all user's allert
+      operationId: get-alerts
+      tags:
+        - alerts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertsGet'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+      security:
+        - BearerAuth: []
+  '/alerts/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: alert id
+    patch:
+      summary: Delete an alert by id
+      description: Delete an alert by id
+      operationId: patch-alerts-id
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      tags:
+        - alerts
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                content:
-                  type: string
-              required:
-                - content
+                viewed:
+                  type: boolean
   /roles:
     get:
       summary: Get list of all users roles
@@ -481,6 +542,8 @@ components:
       title: DetailOfError
       type: object
       description: object with detail of error
+      x-tags:
+        - error
       properties:
         status:
           type: number
@@ -512,6 +575,8 @@ components:
       required:
         - login
         - password
+      x-tags:
+        - authorization
     PostGetManage:
       title: PostGetManage
       type: object
@@ -535,6 +600,8 @@ components:
         - owner
         - updatedAt
         - latsVerification
+      x-tags:
+        - posts
     PostGetView:
       title: PostGetView
       type: object
@@ -567,6 +634,8 @@ components:
         - likesSum
         - commentsCount
         - viewsCount
+      x-tags:
+        - posts
     CommentsGet:
       title: CommentsGet
       type: object
@@ -594,6 +663,8 @@ components:
         - content
         - updatedAt
         - childsCommentsCount
+      x-tags:
+        - comments
     Owner:
       title: Owner
       type: object
@@ -605,6 +676,8 @@ components:
       required:
         - id
         - login
+      x-tags:
+        - users
     LastVerification:
       title: LastVerification
       type: object
@@ -620,3 +693,86 @@ components:
         - id
         - result
         - reason
+      x-tags:
+        - posts
+    AlertsGet:
+      title: AlertsGet
+      type: object
+      x-tags:
+        - alerts
+      properties:
+        id:
+          type: number
+        level:
+          type: string
+          enum:
+            - error
+            - success
+            - info
+        updatedAt:
+          type: string
+        title:
+          type: string
+        post:
+          $ref: '#/components/schemas/PostAlertGet'
+        comment1:
+          $ref: '#/components/schemas/CommentAlertGet'
+        comment2:
+          $ref: '#/components/schemas/CommentAlertGet'
+        reason:
+          type: string
+          nullable: true
+      required:
+        - id
+        - level
+        - updatedAt
+        - title
+        - post
+        - comment1
+        - comment2
+        - reason
+    PostAlertGet:
+      title: PostAlertGet
+      type: object
+      x-tags:
+        - alerts
+        - posts
+      nullable: true
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        content:
+          type: string
+        owner:
+          $ref: '#/components/schemas/Owner'
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - content
+        - owner
+        - updatedAt
+    CommentAlertGet:
+      title: CommentAlertGet
+      type: object
+      x-tags:
+        - alerts
+        - comments
+      nullable: true
+      properties:
+        id:
+          type: number
+        owner:
+          $ref: '#/components/schemas/Owner'
+        content:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - owner
+        - content
+        - updatedAt

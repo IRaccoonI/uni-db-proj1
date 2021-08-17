@@ -24,7 +24,14 @@ import { Sequelize } from 'sequelize';
 import Comments from './Comments.model';
 
 @Scopes(() => ({
-  manageList: {
+  alert: () => ({
+    attributes: ['id', 'title', 'content', 'updatedAt'],
+    include: {
+      model: Users,
+      attributes: ['id', 'login'],
+    },
+  }),
+  manage: {
     attributes: ['id', 'title', 'content', 'updatedAt', 'lastVerification'],
     include: [
       {
@@ -38,7 +45,7 @@ import Comments from './Comments.model';
       },
     ],
   },
-  viewList: {
+  view: {
     attributes: ['id', 'title', 'content', 'updatedAt', 'lastVerification', 'viewsCount'],
     include: [
       {
@@ -115,13 +122,10 @@ export default class Posts extends Model {
   viewsCount: number;
 
   @Column(DataType.VIRTUAL)
-  get likesValue(): number {
-    return !this.likes ? 0 : this.likes.reduce((p, c) => p + c.value, 0);
-  }
-
-  @Column(DataType.VIRTUAL)
   get lastVerification(): PostsVerifications {
-    return this.verification.length == 0
+    return this.verification === undefined
+      ? null
+      : this.verification.length == 0
       ? null
       : this.verification.length == 1
       ? this.verification[0]

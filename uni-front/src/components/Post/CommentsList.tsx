@@ -1,4 +1,4 @@
-import { useEffect, ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 
@@ -19,18 +19,6 @@ function CommentsList(prop: CommentsProp): ReactElement {
       ),
     shallowEqual,
   );
-
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    // console.log(comments);
-  }, [comments]);
-
-  useEffect(() => {
-    return () => {
-      // dispatch(commentsClearByPostId(prop.postId));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <CommentsListStyled>

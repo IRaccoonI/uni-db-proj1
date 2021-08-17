@@ -20,7 +20,7 @@ export default function registerRoute(router: Router) {
       ctx.throw(403, 'You cannot manage new posts');
     }
 
-    let posts = await Posts.scope('manageList').findAll({
+    let posts = await Posts.scope('manage').findAll({
       where: {},
       order: ['updatedAt'],
     });

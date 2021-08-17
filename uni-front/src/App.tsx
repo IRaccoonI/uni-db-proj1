@@ -18,6 +18,7 @@ import NotFound from 'components/NotFound';
 import CreatePost from 'components/CreatePost';
 import ListManage from 'components/Post/ListManage';
 import ListView from 'components/Post/ListView';
+import AlertList from 'components/Alert/List';
 
 function App(): ReactElement {
   const loggedIn = useSelector((state: RootState) => state.auth.user != null);
@@ -32,6 +33,7 @@ function App(): ReactElement {
         <PrivateRoute exact path="/" component={ListView} />
         <PrivateRoute exact path="/manage-posts" component={ListManage} />
         <PrivateRoute exact path="/create-post" component={CreatePost} />
+        <PrivateRoute exact path="/alerts" component={AlertList} />
         <Route>{loggedIn ? <NotFound /> : <Redirect to="/login" />}</Route>
       </Switch>
       {/* </div> */}

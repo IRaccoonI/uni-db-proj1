@@ -6,6 +6,7 @@ import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
 
 import { ICommentsPostReq, joiValidateCommentsPost } from '../../../middlewares/joi-comments';
 import Posts from '../../../db/models/Posts.model';
+import Alerts from '../../../db/models/Alerts.model';
 import Comments from '../../../db/models/Comments.model';
 
 export default function registerRoute(router: Router) {
@@ -19,9 +20,19 @@ export default function registerRoute(router: Router) {
       ctx.throw(400, 'Id must be number');
     }
 
-    if ((await Posts.findByPk(postId)) == null) {
+    const curPost = await Posts.findByPk(postId);
+
+    if (curPost == null) {
       ctx.throw(404, 'Post not Found');
     }
+
+    const parentComment =
+      ctx.request.body.parentCommentId === undefined ? null : await Comments.findByPk(ctx.request.body.parentCommentId);
+
+    if (ctx.request.body.parentCommentId !== undefined && parentComment == null) {
+      ctx.throw(404, 'Parent comment not Found');
+    }
+
     const newComment = await Comments.create({
       postId: postId,
       ownerId: ctx.state.userModel.id,
@@ -29,10 +40,29 @@ export default function registerRoute(router: Router) {
       parentCommentId: ctx.request.body.parentCommentId,
     });
 
-    const newCommentScoped = await Comments.scope('Detail').findByPk(newComment.id);
+    const newCommentScoped = await Comments.scope('detail').findByPk(newComment.id);
     const resComments: any = newCommentScoped.toJSON();
     resComments['childsCommentsCount'] = newCommentScoped.childsComments.length;
     delete resComments.childsComments;
+
+    if (ctx.request.body.parentCommentId !== undefined) {
+      await Alerts.create({
+        title: 'Your comment has been commented',
+        level: 'info',
+        postId: postId,
+        userId: parentComment.owner.id,
+        comment1Id: ctx.request.body.parentCommentId,
+        comment2Id: newCommentScoped.id,
+      });
+    } else {
+      await Alerts.create({
+        title: 'Your post has been commented',
+        level: 'info',
+        userId: curPost.ownerId,
+        postId: postId,
+        comment1Id: newCommentScoped.id,
+      });
+    }
 
     ctx.status = 200;
     ctx.type = 'json';
@@ -52,7 +82,7 @@ export default function registerRoute(router: Router) {
       ctx.throw(404, 'Post not Found');
     }
 
-    const curComments = await Comments.scope('Detail').findAll({
+    const curComments = await Comments.scope('detail').findAll({
       where: {
         postId: postId,
         parentCommentId: null,

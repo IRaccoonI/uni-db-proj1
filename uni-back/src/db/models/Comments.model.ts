@@ -27,7 +27,14 @@ import DeletedComments from './DeletedComments.model';
   },
 }))
 @Scopes(() => ({
-  Detail: {
+  alert: {
+    attributes: ['id', 'content', 'updatedAt'],
+    include: {
+      model: Users,
+      attributes: ['id', 'login'],
+    },
+  },
+  detail: {
     attributes: ['id', 'postId', 'parentCommentId', 'content', 'updatedAt'],
     include: [
       {

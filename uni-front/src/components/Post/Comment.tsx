@@ -5,46 +5,19 @@ import { AppDispatch, RootState } from 'redux/store';
 import styled from 'styled-components';
 
 import SimpleImpotFormlight from 'components/SimpleInputForm/Light';
-import { postsCommentPost, uploadPostComments } from 'redux/slices/posts';
+import {
+  postsCommentPost,
+  postsDeleteComments,
+  uploadPostComments,
+} from 'redux/slices/posts';
 import { Dash, Plus } from 'react-bootstrap-icons';
-
-const MILLISECONDS_IN_SECOND = 1000;
-const SECNDS_IN_MINUTE = 60;
-const MINUTES_IN_HOUR = 60;
-const HOURS_IN_DAY = 24;
-
-const correctStrDate = (strDate: string): string => {
-  if (strDate === undefined) return 'None';
-  const updDate = new Date(strDate.replace(' ', 'T'));
-  const timedelta = new Date().getTime() - updDate.getTime();
-  let daysPass =
-    timedelta /
-    HOURS_IN_DAY /
-    MINUTES_IN_HOUR /
-    SECNDS_IN_MINUTE /
-    MILLISECONDS_IN_SECOND;
-  if (daysPass >= 1) {
-    return Math.floor(daysPass).toString() + ' days ago';
-  }
-  let hoursPass =
-    timedelta / MINUTES_IN_HOUR / SECNDS_IN_MINUTE / MILLISECONDS_IN_SECOND;
-  if (hoursPass >= 1) {
-    return Math.floor(hoursPass).toString() + ' hours ago';
-  }
-  let minutesPass = timedelta / SECNDS_IN_MINUTE / MILLISECONDS_IN_SECOND;
-  if (minutesPass >= 1) {
-    return Math.floor(minutesPass).toString() + ' minutes ago';
-  }
-  let secondsPass = timedelta / MILLISECONDS_IN_SECOND;
-  if (secondsPass >= 10) {
-    return Math.floor(secondsPass).toString() + ' seconds ago';
-  }
-  return 'now';
-};
+import { correctStrDate } from 'utils/time';
 
 interface CommentsProp {
   id: number;
 }
+
+type inputAction = 'newComment' | 'deleteComment' | 'null';
 
 function Comments(prop: CommentsProp): ReactElement {
   const dispatch: AppDispatch = useDispatch();
@@ -64,7 +37,7 @@ function Comments(prop: CommentsProp): ReactElement {
       store.posts.comments.filter((c) => c.id === prop.id)[0],
   );
 
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [inputAction, setInputAction] = useState<inputAction>('null');
   const [showChilds, setShowChilds] = useState(false);
   const [childsUploaded, setChildsUploaded] = useState(false);
 
@@ -89,7 +62,7 @@ function Comments(prop: CommentsProp): ReactElement {
           postId: curComment.postId,
         }),
       );
-      setShowAnswer(false);
+      setInputAction('null');
     },
     [dispatch, curComment],
   );
@@ -107,6 +80,13 @@ function Comments(prop: CommentsProp): ReactElement {
     uploadChildsCb();
   }, [childsUploaded, uploadChildsCb]);
 
+  const deleteCommentCb = useCallback(
+    async (text) => {
+      dispatch(postsDeleteComments({ commentId: curComment.id, reason: text }));
+    },
+    [curComment, dispatch],
+  );
+
   return (
     <CommentsStyled>
       <div className="comment-header mt-2">
@@ -119,30 +99,51 @@ function Comments(prop: CommentsProp): ReactElement {
         <span className="comment-content">{curComment.content}</span>
       </div>
       <div className="comment-actions">
-        {!showAnswer ? (
+        {inputAction === 'null' ? (
           <span
             className="comment-action-answer"
-            onClick={() => setShowAnswer(true)}
+            onClick={() => setInputAction('newComment')}
           >
             answer
           </span>
-        ) : (
+        ) : inputAction === 'newComment' ? (
           <span
             className="comment-action-cancle"
-            onClick={() => setShowAnswer(false)}
+            onClick={() => setInputAction('null')}
           >
             cancle
           </span>
-        )}
-        {userRole !== 'admin' ? null : (
-          <span className="comment-action-delete ms-1">delete</span>
-        )}
+        ) : null}
+        {userRole !== 'admin' ? null : inputAction === 'null' ? (
+          <span
+            className="comment-action-delete ms-1"
+            onClick={() => setInputAction('deleteComment')}
+          >
+            delete
+          </span>
+        ) : inputAction === 'deleteComment' ? (
+          <span
+            className="comment-action-delete"
+            onClick={() => setInputAction('null')}
+          >
+            cancle
+          </span>
+        ) : null}
       </div>
-      {!showAnswer ? null : (
+      {inputAction === 'null' ? null : (
         <div className="comment-answer">
           <SimpleImpotFormlight
-            placeholderText="Enter commnet..."
-            submitCd={(text) => sendAnswerCb(text)}
+            placeholderText={
+              inputAction === 'newComment'
+                ? 'Enter commnet...'
+                : 'Enter reason...'
+            }
+            submitText={inputAction === 'newComment' ? 'Send' : 'Delete'}
+            submitCd={(text) =>
+              (inputAction === 'newComment' ? sendAnswerCb : deleteCommentCb)(
+                text,
+              )
+            }
           />
         </div>
       )}
