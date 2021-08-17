@@ -77,7 +77,6 @@ declare global {
       id: number;
       owner: Swagger.Owner;
       content: string;
-      title: string;
       updatedAt: string;
     }
   }
@@ -205,6 +204,13 @@ declare global {
           };
           params: {
             id: string;
+          };
+        };
+      };
+      '/alerts/count': {
+        GET: {
+          response: {
+            count: number;
           };
         };
       };

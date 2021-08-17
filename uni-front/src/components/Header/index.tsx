@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from 'redux/slices/auth';
 import LinkBtn from './LinkBtn';
 import { useLocation } from 'react-router';
+import { useInterval } from 'react-interval-hook';
+import { alertsGetCount } from 'redux/slices/alerts';
 
 function Header(): ReactElement {
   const path = useLocation();
@@ -16,9 +18,15 @@ function Header(): ReactElement {
 
   const userRole = useSelector((store: RootState) => store.auth.user?.roleName);
 
+  const alertsCount = useSelector((store: RootState) => store.alerts.count);
+
   const logoutCb = useCallback(() => {
     dispatch(logout());
   }, [dispatch]);
+
+  useInterval(() => {
+    dispatch(alertsGetCount({}));
+  }, 1000);
 
   return (
     <LoginStyled>
@@ -42,6 +50,7 @@ function Header(): ReactElement {
           <LinkBtn
             text="alerts"
             to="/alerts"
+            counter={alertsCount}
             isActive={path.pathname === '/alerts'}
           />
           <div onClick={logoutCb}>

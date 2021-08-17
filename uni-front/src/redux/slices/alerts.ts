@@ -9,6 +9,7 @@ import { store } from 'redux/store';
 
 export type alertsState = {
   status: string;
+  count: number;
   alerts: Swagger.AlertsGet[];
 };
 
@@ -16,6 +17,7 @@ export type alertsState = {
 
 const initialState: alertsState = {
   status: 'idle',
+  count: 0,
   alerts: [],
 };
 
@@ -75,6 +77,28 @@ export const alertSetViewed = createAsyncThunk(
   },
 );
 
+export const alertsGetCount = createAsyncThunk(
+  'alerts/count',
+  async (black: {}, api) => {
+    black;
+    try {
+      const response = await taxios.get('/alerts/count', {
+        axios: {
+          headers: {
+            authorization: 'Bearer ' + store.getState().auth.jwt,
+          },
+        },
+      });
+      return response.data;
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
+  },
+);
+
 // Slice
 
 const alertsSlice = createSlice({
@@ -90,6 +114,9 @@ const alertsSlice = createSlice({
     });
     builder.addCase(alertSetViewed.fulfilled, (state: alertsState, action) => {
       state.alerts = state.alerts.filter((a) => a.id !== action.meta.arg.id);
+    });
+    builder.addCase(alertsGetCount.fulfilled, (state: alertsState, action) => {
+      state.count = action.payload.count;
     });
   },
 });

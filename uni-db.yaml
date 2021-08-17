@@ -484,6 +484,29 @@ paths:
               properties:
                 viewed:
                   type: boolean
+  /alerts/count:
+    get:
+      summary: Get current user's allerts count
+      description: Get current user's allerts count
+      tags:
+        - alerts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                required:
+                  - count
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: get-alerts-count
+      security:
+        - BearerAuth: []
   /roles:
     get:
       summary: Get list of all users roles
