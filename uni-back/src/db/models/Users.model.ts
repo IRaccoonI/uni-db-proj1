@@ -13,12 +13,10 @@ import {
   BeforeUpdate,
   PrimaryKey,
   AutoIncrement,
-  HasMany,
 } from 'sequelize-typescript';
 import bcrypt from 'bcrypt';
 
 import UserRoles from './UserRoles.model';
-import Posts from './Posts.model';
 
 @DefaultScope(() => ({
   attributes: ['id', 'login', 'roleName'],
@@ -56,7 +54,7 @@ export default class Users extends Model {
 
   @BeforeCreate
   @BeforeUpdate
-  static makeUpperCase(instance: Users) {
+  static cryptPassword(instance: Users) {
     if (instance.password !== undefined) {
       const salt = bcrypt.genSaltSync();
       const pswd = bcrypt.hashSync(instance.password, salt);

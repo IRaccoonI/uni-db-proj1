@@ -5,13 +5,13 @@ import Alerts from '../../db/models/Alerts.model';
 import Comments from '../../db/models/Comments.model';
 import Posts from '../../db/models/Posts.model';
 
-import { IJWTState, jwtWithSetUserModel } from '../../middlewares/jwt';
+import { IJWTState, jwt } from '../../middlewares/jwt';
 
 export default function registerRoute(router: Router) {
   interface PostsGetCtx extends Context {
     state: IJWTState;
   }
-  router.get('/', jwtWithSetUserModel, async (ctx: PostsGetCtx) => {
+  router.get('/', jwt, async (ctx: PostsGetCtx) => {
     const alerts = await Alerts.findAll({
       attributes: ['id', 'title', 'level', 'reason', 'updatedAt'],
       include: [
@@ -31,7 +31,7 @@ export default function registerRoute(router: Router) {
         },
       ],
       where: {
-        userId: ctx.state.userModel.id,
+        userId: ctx.state.user.id,
         viewed: false,
       },
     });

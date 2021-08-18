@@ -65,13 +65,17 @@ export async function signTocken(ctx: AuthContext) {
 
 export const jwtWithSetUserModel = compose([jwt, setUser2CtxByJWT]);
 
-// interface for create Context
+// interfaces for expanding context
+
 export interface IJWTState extends DefaultState {
-  userModel: Users;
   user: {
     iat: number;
     id: number;
     login: string;
     roleName: string;
   };
+}
+
+export interface IJWTWithUserModelState extends IJWTState {
+  userModel: Users;
 }

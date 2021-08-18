@@ -3,7 +3,7 @@ import { Context } from 'koa';
 import Router from 'koa-router';
 
 import { IPostPostLikeReq, joiValidatePostPostLike } from '../../../middlewares/joi-posts';
-import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
+import { IJWTState, jwt } from '../../../middlewares/jwt';
 
 import Posts from '../../../db/models/Posts.model';
 import PostsLikes from '../../../db/models/PostsLikes.model';
@@ -15,7 +15,7 @@ export default function registerRoute(router: Router) {
     state: IJWTState;
     request: IPostPostLikeReq;
   }
-  router.post('/', joiValidatePostPostLike, jwtWithSetUserModel, async (ctx: PostPostLikeCtx) => {
+  router.post('/', joiValidatePostPostLike, jwt, async (ctx: PostPostLikeCtx) => {
     const postId: number = parseInt(ctx.params.id);
     if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');
@@ -27,7 +27,7 @@ export default function registerRoute(router: Router) {
 
     const prevLike = await PostsLikes.findOne({
       where: {
-        userId: ctx.state.userModel.id,
+        userId: ctx.state.user.id,
         postId: postId,
       },
     });
@@ -36,14 +36,14 @@ export default function registerRoute(router: Router) {
 
     if (prevLike == null) {
       await PostsLikes.create({
-        userId: ctx.state.userModel.id,
+        userId: ctx.state.user.id,
         postId: postId,
         value: ctx.request.body.value,
       });
       currentSelfLikeValue = ctx.request.body.value;
     } else if (prevLike.value === ctx.request.body.value) {
       await PostsLikes.destroy({
-        where: { postId: postId, userId: ctx.state.userModel.id },
+        where: { postId: postId, userId: ctx.state.user.id },
       });
       currentSelfLikeValue = 0;
     } else {
@@ -52,7 +52,7 @@ export default function registerRoute(router: Router) {
           value: ctx.request.body.value,
         },
         {
-          where: { postId: postId, userId: ctx.state.userModel.id },
+          where: { postId: postId, userId: ctx.state.user.id },
         },
       );
       currentSelfLikeValue = ctx.request.body.value;

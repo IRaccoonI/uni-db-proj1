@@ -1,14 +1,4 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  ForeignKey,
-  PrimaryKey,
-  AutoIncrement,
-  BelongsTo,
-  AfterCreate,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, PrimaryKey, AutoIncrement, BelongsTo } from 'sequelize-typescript';
 
 import Comments from './Comments.model';
 

@@ -19,6 +19,7 @@ import {
 import Users from './Users.model';
 import Posts from './Posts.model';
 import DeletedComments from './DeletedComments.model';
+
 @DefaultScope(() => ({
   attributes: ['id', 'postId', 'parentCommentId', 'content', 'updatedAt'],
   include: {

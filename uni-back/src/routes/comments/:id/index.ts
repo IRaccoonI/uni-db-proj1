@@ -2,7 +2,7 @@
 import { Context } from 'koa';
 import Router from 'koa-router';
 
-import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
+import { IJWTState, jwt } from '../../../middlewares/jwt';
 
 import {
   CommentsDeleteQueryType,
@@ -40,7 +40,7 @@ export default function registerRoute(router: Router) {
   interface CommentsDeleteCtx extends Context {
     state: IJWTState;
   }
-  router.delete('/', joiValidateCommentsDelete, jwtWithSetUserModel, async (ctx: CommentsDeleteCtx) => {
+  router.delete('/', joiValidateCommentsDelete, jwt, async (ctx: CommentsDeleteCtx) => {
     const commentId: number = parseInt(ctx.params.id);
     const reason = (ctx.request.query as CommentsDeleteQueryType).reason;
 
@@ -73,7 +73,7 @@ export default function registerRoute(router: Router) {
   interface CommentsGetCtx extends Context {
     state: IJWTState;
   }
-  router.get('/', jwtWithSetUserModel, async (ctx: CommentsGetCtx) => {
+  router.get('/', jwt, async (ctx: CommentsGetCtx) => {
     const commentId: number = parseInt(ctx.params.id);
     if (commentId == null || isNaN(commentId)) {
       ctx.throw(400, 'Id must be number');

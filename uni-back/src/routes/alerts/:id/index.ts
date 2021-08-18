@@ -4,13 +4,13 @@ import Router from 'koa-router';
 import Alerts from '../../../db/models/Alerts.model';
 import { joiValidateAlertsIdPatch } from '../../../middlewares/joi-alerts';
 
-import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
+import { IJWTState, jwt } from '../../../middlewares/jwt';
 
 export default function registerRoute(router: Router) {
   interface PostsGetCtx extends Context {
     state: IJWTState;
   }
-  router.patch('/', joiValidateAlertsIdPatch, jwtWithSetUserModel, async (ctx: PostsGetCtx) => {
+  router.patch('/', joiValidateAlertsIdPatch, jwt, async (ctx: PostsGetCtx) => {
     const alertId: number = parseInt(ctx.params.id);
 
     const curAlert = await Alerts.findByPk(alertId);

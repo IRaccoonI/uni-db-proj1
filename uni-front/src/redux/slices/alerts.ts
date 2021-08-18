@@ -1,3 +1,5 @@
+// файлы получаются очень большими, нужно что то делать с иерархией
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { Taxios } from '@simplesmiler/taxios';

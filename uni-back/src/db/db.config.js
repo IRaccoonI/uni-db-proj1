@@ -1,5 +1,3 @@
-// @TODO: разобраться с работой sequelize + typescript
-
 const DB_CONFIG = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
@@ -17,6 +15,7 @@ const DB_CONFIG = {
   logging: false,
 };
 
+// enable logging queries
 const DB_DEV_CONFIG = {
   ...DB_CONFIG,
   logging: true,

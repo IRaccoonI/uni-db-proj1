@@ -1,15 +1,7 @@
 import * as Joi from '@hapi/joi';
-import { any } from 'joi';
 import 'joi-extract-type';
 import { Context, Request } from 'koa';
 const validateMiddleware = require('koa-joi-validate-middleware');
-
-// interface IJoiBase {
-//   body?: Joi.ObjectSchema;
-//   params?: Joi.ObjectSchema;
-//   headers?: Joi.ObjectSchema;
-//   query?: Joi.ObjectSchema;
-// }
 
 const user = {
   id: Joi.number().min(1),

@@ -2,7 +2,7 @@
 import { Context } from 'koa';
 import Router from 'koa-router';
 
-import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
+import { IJWTState, jwt } from '../../../middlewares/jwt';
 
 import { ICommentsPostReq, joiValidateCommentsPost } from '../../../middlewares/joi-comments';
 import Posts from '../../../db/models/Posts.model';
@@ -14,7 +14,7 @@ export default function registerRoute(router: Router) {
     state: IJWTState;
     request: ICommentsPostReq;
   }
-  router.post('/', joiValidateCommentsPost, jwtWithSetUserModel, async (ctx: CommentsPostCtx) => {
+  router.post('/', joiValidateCommentsPost, jwt, async (ctx: CommentsPostCtx) => {
     const postId: number = parseInt(ctx.params.id);
     if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');
@@ -35,7 +35,7 @@ export default function registerRoute(router: Router) {
 
     const newComment = await Comments.create({
       postId: postId,
-      ownerId: ctx.state.userModel.id,
+      ownerId: ctx.state.user.id,
       content: ctx.request.body.content,
       parentCommentId: ctx.request.body.parentCommentId,
     });
@@ -72,7 +72,7 @@ export default function registerRoute(router: Router) {
   interface CommentsGetCtx extends Context {
     state: IJWTState;
   }
-  router.get('/', jwtWithSetUserModel, async (ctx: CommentsGetCtx) => {
+  router.get('/', jwt, async (ctx: CommentsGetCtx) => {
     const postId: number = parseInt(ctx.params.id);
     if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');

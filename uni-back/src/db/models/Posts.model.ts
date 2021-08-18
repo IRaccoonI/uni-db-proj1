@@ -6,7 +6,6 @@ import {
   Model,
   DataType,
   ForeignKey,
-  DefaultScope,
   CreatedAt,
   UpdatedAt,
   DeletedAt,
@@ -20,7 +19,6 @@ import {
 import Users from './Users.model';
 import PostsLikes from './PostsLikes.model';
 import PostsVerifications from './PostsVerifications.model';
-import { Sequelize } from 'sequelize';
 import Comments from './Comments.model';
 
 @Scopes(() => ({
@@ -121,6 +119,10 @@ export default class Posts extends Model {
   @Column(DataType.INTEGER)
   viewsCount: number;
 
+  // непонятно как сделать что бы возращался не массив а объект
+  // + он всегда возрщается даже если его нет в аттрибутах
+  // стоит ли это вообще использовать или просто возращать всё что нашлось и там обрабатывать
+  // хотя постоянно обрабатывать это плохо, тк это используется часто
   @Column(DataType.VIRTUAL)
   get lastVerification(): PostsVerifications {
     return this.verification === undefined

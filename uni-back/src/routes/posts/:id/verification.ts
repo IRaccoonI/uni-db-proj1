@@ -3,7 +3,7 @@ import { Context } from 'koa';
 import Router from 'koa-router';
 
 import { IPostPatchVerificataionReq, joiValidatePostPatchVerificataion } from '../../../middlewares/joi-posts';
-import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
+import { IJWTState, jwt } from '../../../middlewares/jwt';
 
 import Posts from '../../../db/models/Posts.model';
 import PostsVerifications from '../../../db/models/PostsVerifications.model';
@@ -14,13 +14,13 @@ export default function registerRoute(router: Router) {
     request: IPostPatchVerificataionReq;
     state: IJWTState;
   }
-  router.patch('/', joiValidatePostPatchVerificataion, jwtWithSetUserModel, async (ctx: PostsPatchValideteCtx) => {
+  router.patch('/', joiValidatePostPatchVerificataion, jwt, async (ctx: PostsPatchValideteCtx) => {
     const postId: number = parseInt(ctx.params.id);
     if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');
     }
 
-    if (ctx.state.userModel.roleName != 'admin') {
+    if (ctx.state.user.roleName != 'admin') {
       ctx.throw(403, 'Forbidden for non admin');
     }
 

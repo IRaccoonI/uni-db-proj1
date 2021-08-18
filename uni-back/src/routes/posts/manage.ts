@@ -3,7 +3,7 @@ import { Context } from 'koa';
 import Router from 'koa-router';
 
 import { joiValidatePostsGet, PostsGetQueryType } from '../../middlewares/joi-posts';
-import { IJWTState, jwtWithSetUserModel } from '../../middlewares/jwt';
+import { IJWTState, jwt } from '../../middlewares/jwt';
 
 import Posts from '../../db/models/Posts.model';
 
@@ -13,10 +13,10 @@ export default function registerRoute(router: Router) {
   interface PostsManageGetCtx extends Context {
     state: IJWTState;
   }
-  router.get('/', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsManageGetCtx) => {
+  router.get('/', joiValidatePostsGet, jwt, async (ctx: PostsManageGetCtx) => {
     const verificationResult = (ctx.request.query as PostsGetQueryType).verificationResult;
 
-    if (ctx.state.userModel.roleName != 'admin') {
+    if (ctx.state.user.roleName != 'admin') {
       ctx.throw(403, 'You cannot manage new posts');
     }
 

@@ -17,6 +17,8 @@ let formater = (formatter: string, ...args: (number | string)[]): string => {
 export async function createApp() {
   const app = new Koa();
 
+  console.log(process.env);
+
   /** Init Database */
   await initDatabase();
 

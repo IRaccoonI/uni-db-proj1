@@ -39,7 +39,7 @@ export default function registerRoutes(ctx: Context, router: Router) {
     prefix: process.env.ROUTES_PREFIX,
   });
 
-  // фикс бесконечной загрузки, если путь запроса не существует
+  // fix infinite load if request path doesn't exist
   router.all('(.*)', (koaContext) => {
     koaContext.throw(404);
   });

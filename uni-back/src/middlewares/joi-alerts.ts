@@ -6,6 +6,8 @@ const validateMiddleware = require('koa-joi-validate-middleware');
 const alert = {
   viewed: Joi.boolean(),
 };
+
+// вынести в отдельную функцию
 // call on validation error
 function errorCallback(ctx: Context, error: Joi.ValidationError) {
   ctx.throw(400, error.message);

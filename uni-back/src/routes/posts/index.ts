@@ -8,7 +8,7 @@ import {
   joiValidatePostsPost,
   PostsGetQueryType,
 } from '../../middlewares/joi-posts';
-import { IJWTState, jwtWithSetUserModel } from '../../middlewares/jwt';
+import { IJWTState, jwt } from '../../middlewares/jwt';
 
 import Posts from '../../db/models/Posts.model';
 import PostsVerifications from '../../db/models/PostsVerifications.model';
@@ -19,10 +19,10 @@ export default function registerRoute(router: Router) {
   interface PostsGetCtx extends Context {
     state: IJWTState;
   }
-  router.get('/', joiValidatePostsGet, jwtWithSetUserModel, async (ctx: PostsGetCtx) => {
+  router.get('/', joiValidatePostsGet, jwt, async (ctx: PostsGetCtx) => {
     const verificationResult = (ctx.request.query as PostsGetQueryType).verificationResult;
 
-    if ((verificationResult == 'false' || verificationResult == 'null') && ctx.state.userModel.roleName != 'admin') {
+    if ((verificationResult == 'false' || verificationResult == 'null') && ctx.state.user.roleName != 'admin') {
       ctx.throw(403, 'You cannot manage new posts');
     }
 
@@ -47,7 +47,7 @@ export default function registerRoute(router: Router) {
       delete curJson.comments;
 
       curJson['likesSum'] = post.likes.reduce((p, c) => p + c.value, 0);
-      let selfLike = post.likes.filter((like) => like.userId == ctx.state.userModel.id);
+      let selfLike = post.likes.filter((like) => like.userId == ctx.state.user.id);
       curJson['selfLikeValue'] = selfLike.length == 0 ? 0 : selfLike[0].value;
 
       curJson['commentsCount'] = post.comments.length;
@@ -64,15 +64,15 @@ export default function registerRoute(router: Router) {
     state: IJWTState;
     request: IPostsPostReq;
   }
-  router.post('/', joiValidatePostsPost, jwtWithSetUserModel, async (ctx: PostsPostCtx) => {
-    if (ctx.request.body.withoutVerification && ctx.state.userModel.roleName != 'admin') {
+  router.post('/', joiValidatePostsPost, jwt, async (ctx: PostsPostCtx) => {
+    if (ctx.request.body.withoutVerification && ctx.state.user.roleName != 'admin') {
       ctx.throw(403, 'You cannot create a post without verification');
     }
 
     const newPost = await Posts.create({
       title: ctx.request.body.title,
       content: ctx.request.body.content,
-      ownerId: ctx.state.userModel.id,
+      ownerId: ctx.state.user.id,
     });
 
     if (ctx.request.body.withoutVerification) {

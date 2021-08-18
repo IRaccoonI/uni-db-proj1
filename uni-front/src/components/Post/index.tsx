@@ -6,6 +6,8 @@ import { Button, Card } from 'react-bootstrap';
 import { ChatLeft, EyeFill } from 'react-bootstrap-icons';
 import { correctStrDate } from 'utils/time';
 
+// тут нужно было создать 2 интерфеса что бы не было ommit
+// при его расширении другими сомпонентами
 export interface PostProp {
   id: number;
   title: string;

@@ -2,7 +2,7 @@
 import { Context } from 'koa';
 import Router from 'koa-router';
 
-import { IJWTState, jwtWithSetUserModel } from '../../../middlewares/jwt';
+import { IJWTState, jwt } from '../../../middlewares/jwt';
 
 import Posts from '../../../db/models/Posts.model';
 import { IPostPostLikeReq } from '../../../middlewares/joi-posts';
@@ -12,7 +12,7 @@ export default function registerRoute(router: Router) {
     state: IJWTState;
     request: IPostPostLikeReq;
   }
-  router.post('/', jwtWithSetUserModel, async (ctx: PostPostIncrementView) => {
+  router.post('/', jwt, async (ctx: PostPostIncrementView) => {
     const postId: number = parseInt(ctx.params.id);
     if (postId == null || isNaN(postId)) {
       ctx.throw(400, 'Id must be number');

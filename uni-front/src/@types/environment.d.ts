@@ -3,7 +3,7 @@ declare global {
     interface ProcessEnv {
       NODE_ENV: 'development' | 'production';
       PORT?: string;
-      REACT_APP_API_URL: string;
+      REACT_APP_API_PREFIX: string;
       REACT_APP_DEV_API_URL: string;
     }
   }
