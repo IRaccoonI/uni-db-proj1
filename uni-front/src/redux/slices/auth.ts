@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Taxios } from '@simplesmiler/taxios';
 import Axios from 'axios';
 import jwtDecode from 'jwt-decode';
+import { apiUrl } from 'utils/consts';
 
 // Types
 
@@ -31,7 +32,7 @@ const initialState = {
 
 // Thunk functions
 
-const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
+const taxios = new Taxios<Swagger>(Axios.create({ baseURL: apiUrl }));
 
 export const authorizate = createAsyncThunk(
   'auth/login',

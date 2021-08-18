@@ -14,10 +14,16 @@ const DB_CONFIG = {
   },
   seederStorageTableName: '_seeders_',
   seederStorage: 'sequelize',
+  logging: false,
+};
+
+const DB_DEV_CONFIG = {
+  ...DB_CONFIG,
+  logging: true,
 };
 
 module.exports = {
-  development: DB_CONFIG,
+  development: DB_DEV_CONFIG,
   test: DB_CONFIG,
   production: DB_CONFIG,
 };

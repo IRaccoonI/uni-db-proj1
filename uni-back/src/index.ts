@@ -8,19 +8,6 @@ import { initDatabase } from './db';
 
 const { ArgumentParser } = require('argparse');
 
-const parser = new ArgumentParser({
-  description: 'Start server',
-});
-
-parser.add_argument('-p', '--port', {
-  help: 'Set port to start server',
-});
-
-let args: any;
-if (process.env.NODE_ENV != 'test') {
-  args = parser.parse_args();
-}
-
 let formater = (formatter: string, ...args: (number | string)[]): string => {
   return args
     .reduce((p: string, c: string | number) => (c == undefined ? p : p.replace(/%s/, c.toString())), formatter)
@@ -35,6 +22,7 @@ export async function createApp() {
 
   /** Middlewares */
   app.use(json());
+
   if (process.env.NODE_ENV !== 'test') {
     app.use(
       logger({
@@ -79,7 +67,7 @@ export async function createApp() {
 
 export default async function main() {
   const app = await createApp();
-  const PORT = args.port ? args.port : process.env.PORT;
+  const PORT = process.env.PORT ?? 3000;
 
   await app.listen(PORT);
   console.info(`Server started: http://localhost:${PORT}`);

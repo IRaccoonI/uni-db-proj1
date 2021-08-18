@@ -1,5 +1,5 @@
 # Secrets
-/.env
+# /.env
 
 # Build artifacts
 /build

@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Taxios } from '@simplesmiler/taxios';
 import Axios from 'axios';
 import { store } from 'redux/store';
+import { apiUrl } from 'utils/consts';
 
 // Types
 
@@ -60,7 +61,7 @@ const initialState: PostState = {
 
 // Thunk functions
 
-const taxios = new Taxios<Swagger>(Axios.create({ baseURL: '/api' }));
+const taxios = new Taxios<Swagger>(Axios.create({ baseURL: apiUrl }));
 
 export const postsPost = createAsyncThunk(
   'posts/send',
