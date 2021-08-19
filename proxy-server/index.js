@@ -35,20 +35,18 @@ const products = [
 
 http
   .createServer((req, res) => {
-    // eslint-disable-next-line node/no-deprecated-api
-    // console.log(url.parse(req.url));
     const parsedURL = url.parse(req.url);
-    // ищем продукт, у которого paths содержит элемент, с которого начинается req.url.path
 
+    // нахождение всех продуктов, пути которых, являются саб путями запорса
     const product_filtered = products.filter((prd) =>
       parsedURL.path.startsWith(prd.path)
     );
+    // нахождение продукта с самым длинным путём
     const product_max = product_filtered.reduce((p, n) =>
       p.path.length < n.path.length ? n : p
     );
-    const product = product_max;
 
-    if (product) return proxy.web(req, res, { target: product.target });
+    if (product_max) return proxy.web(req, res, { target: product_max.target });
     return proxy.web(req, res, { target: products[0].target });
   })
   .listen(4000);
