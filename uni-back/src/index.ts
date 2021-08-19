@@ -5,8 +5,7 @@ import bodyParser from 'koa-bodyparser';
 import registerRoutes from './routes';
 import Router from 'koa-router';
 import { initDatabase } from './db';
-
-const { ArgumentParser } = require('argparse');
+import cors from '@koa/cors';
 
 let formater = (formatter: string, ...args: (number | string)[]): string => {
   return args
@@ -25,7 +24,7 @@ export async function createApp() {
   /** Middlewares */
   app.use(json());
 
-  if (process.env.NODE_ENV !== 'test') {
+  if (process.env.NODE_ENV == 'development') {
     app.use(
       logger({
         transporter: (str, args: [string, string, string, number, string, string]) => {
@@ -44,7 +43,14 @@ export async function createApp() {
         },
       }),
     );
+
+    app.use(
+      cors({
+        origin: '*',
+      }),
+    );
   }
+
   app.use(bodyParser());
 
   app.use(async (ctx, next) => {
