@@ -36,12 +36,19 @@ const taxios = new Taxios<Swagger>(Axios.create({ baseURL: apiUrl }));
 
 export const authorizate = createAsyncThunk(
   'auth/login',
-  async (user: { login: string; password: string }) => {
-    const response = await taxios.post('/authorization/login', {
-      login: user.login,
-      password: user.password,
-    });
-    return response.data.token;
+  async (user: { login: string; password: string }, api) => {
+    try {
+      const response = await taxios.post('/authorization/login', {
+        login: user.login,
+        password: user.password,
+      });
+      return response.data.token;
+    } catch (e) {
+      return api.rejectWithValue({
+        status: e.response.data.status,
+        message: e.response.data.message,
+      });
+    }
   },
 );
 

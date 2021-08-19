@@ -1,7 +1,7 @@
 import { ReactElement, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Button, Card, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Card, Form, Row } from 'react-bootstrap';
 
 // import { Taxios } from '@simplesmiler/taxios';
 // import Axios from 'axios';
@@ -17,9 +17,28 @@ function Login(): ReactElement {
   const [password, setPassword] = useState('');
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch: AppDispatch = useDispatch();
+  const [error, setError] = useState('');
 
   const submitCb = useCallback(async () => {
-    dispatch(authorizate({ login: login, password: password }));
+    try {
+      await dispatch(
+        authorizate({ login: login, password: password }),
+      ).unwrap();
+    } catch (e) {
+      const error = e as ErrorResponse;
+      switch (error.status) {
+        case 400:
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          setError(/\[(.*)\]/.exec(error.message)![1]);
+          break;
+        case 401:
+          setError(error.message);
+          break;
+        case 403:
+          setError('back is not a fool');
+          break;
+      }
+    }
   }, [login, password, dispatch]);
 
   const submitOnEnter = useCallback(
@@ -38,6 +57,7 @@ function Login(): ReactElement {
         <Card className="align-self-center w-472 p-3">
           <p className="mb-0">admin admin</p>
           <p className="mb-0">userr admin</p>
+          {!error ? '' : <Alert variant="danger">{error}</Alert>}
           <Form>
             <Form.Group className="mb-1" controlId="formBasicEmail">
               <Form.Label className="mb-0">Login:</Form.Label>
