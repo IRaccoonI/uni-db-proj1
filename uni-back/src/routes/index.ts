@@ -39,7 +39,7 @@ export default function registerRoutes(ctx: Context, router: Router) {
     prefix: process.env.ROUTES_PREFIX,
   });
 
-  // фикс бесконечной загрузки, если путь запроса не существует
+  // fix infinite load if request path doesn't exist
   router.all('(.*)', (koaContext) => {
     koaContext.throw(404);
   });
@@ -55,17 +55,18 @@ function registerDir(dir: Dir, ctx: Context, config: RouteConfig) {
       routePrefix = routePrefix.slice(0, -'/index'.length);
     }
     const router = new Router({ prefix: routePrefix });
-    const required = dir[key].default;
+    const required = dir[key];
+
+    if (required.default !== undefined && typeof required.default === 'function') {
+      required.default(router);
+      console.info('route added: ', routePrefix);
+      app.use(router.routes());
+      return;
+    }
     if (typeof required === 'object') {
       registerDir(required, ctx, {
         prefix: routePrefix,
       });
-      return;
-    }
-    if (typeof required === 'function') {
-      required(router);
-      console.info('route added: ', routePrefix);
-      app.use(router.routes());
       return;
     }
     throw new Error(`route file is incorrect: ${routePrefix}`);

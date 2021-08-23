@@ -13,3 +13,22 @@ services:
     restart: always
     ports:
       - 3000:3000
+    depends_on:
+      - db
+  front:
+    build: ./uni-front
+    restart: always
+    ports:
+      - 5000:5000
+  proxy:
+    build: ./proxy-server
+    restart: always
+    ports:
+      - 4000:4000
+    environment:
+      - BACK_URL=http://back:3000
+      - FRONT_URL=http://front:5000
+    depends_on:
+      - back
+      - front
+

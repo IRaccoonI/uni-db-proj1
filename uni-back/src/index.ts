@@ -5,21 +5,7 @@ import bodyParser from 'koa-bodyparser';
 import registerRoutes from './routes';
 import Router from 'koa-router';
 import { initDatabase } from './db';
-
-const { ArgumentParser } = require('argparse');
-
-const parser = new ArgumentParser({
-  description: 'Start server',
-});
-
-parser.add_argument('-p', '--port', {
-  help: 'Set port to start server',
-});
-
-let args: any;
-if (process.env.NODE_ENV != 'test') {
-  args = parser.parse_args();
-}
+import cors from '@koa/cors';
 
 let formater = (formatter: string, ...args: (number | string)[]): string => {
   return args
@@ -30,12 +16,15 @@ let formater = (formatter: string, ...args: (number | string)[]): string => {
 export async function createApp() {
   const app = new Koa();
 
+  console.log(process.env);
+
   /** Init Database */
   await initDatabase();
 
   /** Middlewares */
   app.use(json());
-  if (process.env.NODE_ENV === 'development') {
+
+  if (process.env.NODE_ENV == 'development') {
     app.use(
       logger({
         transporter: (str, args: [string, string, string, number, string, string]) => {
@@ -54,7 +43,14 @@ export async function createApp() {
         },
       }),
     );
+
+    app.use(
+      cors({
+        origin: '*',
+      }),
+    );
   }
+
   app.use(bodyParser());
 
   app.use(async (ctx, next) => {
@@ -79,7 +75,7 @@ export async function createApp() {
 
 export default async function main() {
   const app = await createApp();
-  const PORT = args.port ? args.port : process.env.PORT;
+  const PORT = process.env.PORT ?? 3000;
 
   await app.listen(PORT);
   console.info(`Server started: http://localhost:${PORT}`);

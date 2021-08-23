@@ -1,5 +1,3 @@
-// @TODO: разобраться с работой sequelize + typescript
-
 const DB_CONFIG = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
@@ -14,10 +12,17 @@ const DB_CONFIG = {
   },
   seederStorageTableName: '_seeders_',
   seederStorage: 'sequelize',
+  logging: false,
+};
+
+// enable logging queries
+const DB_DEV_CONFIG = {
+  ...DB_CONFIG,
+  logging: true,
 };
 
 module.exports = {
-  development: DB_CONFIG,
-  test: Object.assign(DB_CONFIG, { logging: false }),
+  development: DB_DEV_CONFIG,
+  test: DB_CONFIG,
   production: DB_CONFIG,
 };

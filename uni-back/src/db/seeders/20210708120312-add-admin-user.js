@@ -8,6 +8,11 @@ module.exports = {
           password: '$2a$12$ofh/aBe/GJ31eavy222SP.rjTH2MAnzopMKvKSVXj34QkCCemuR2q',
           role_name: 'admin',
         },
+        {
+          login: 'userr',
+          password: '$2a$12$ofh/aBe/GJ31eavy222SP.rjTH2MAnzopMKvKSVXj34QkCCemuR2q',
+          role_name: 'user',
+        },
       ],
       {},
     );
@@ -15,5 +20,6 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.bulkDelete('users', { login: 'admin' }, {});
+    await queryInterface.bulkDelete('users', { login: 'userr' }, {});
   },
 };

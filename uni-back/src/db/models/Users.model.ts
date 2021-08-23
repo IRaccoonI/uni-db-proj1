@@ -42,6 +42,7 @@ export default class Users extends Model {
   @ForeignKey(() => UserRoles)
   @Column(DataType.STRING)
   roleName: 'admin' | 'user';
+
   @CreatedAt
   createdAt: Date;
 
@@ -53,7 +54,7 @@ export default class Users extends Model {
 
   @BeforeCreate
   @BeforeUpdate
-  static makeUpperCase(instance: Users) {
+  static cryptPassword(instance: Users) {
     if (instance.password !== undefined) {
       const salt = bcrypt.genSaltSync();
       const pswd = bcrypt.hashSync(instance.password, salt);
